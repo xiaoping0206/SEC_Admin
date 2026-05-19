@@ -13,6 +13,18 @@
 			}
 		},
 		{
+			"path": "pages/matching/multi",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/matching/single",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/matching/select-taker",
 			"style": {
 				"navigationStyle": "custom"

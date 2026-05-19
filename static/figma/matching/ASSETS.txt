@@ -1,0 +1,19 @@
+Figma 节点：3588:6762（匹配首页）— 本地资源清单
+------------------------------------------------
+logo_sec.png         — SECare LOGO（186×64pt → 372×128rpx）
+radar_scene.png      — 雷达合成图（Figma 3588:6765，415×415 @ -20,116）
+card_multi_illus.png — 多人匹配 3D 原图（2048×2048 备用）
+card_multi_figure.png — 多人匹配配图（Figma 3588:6799 从 card_multi_ref 裁剪 96×92）
+card_multi_ref.png     — Figma 3588:6799 整卡参考 160×100
+card_single_figure.png — 单人匹配配图（Figma 3588:6798 从 card_single_ref 裁剪 88×100 @ x72）
+card_single_illus.png — 单人匹配 3D 原图（2048×2048 备用）
+card_single_ref.png    — Figma 3588:6798 整卡参考 160×100
+tb_match.png         — 底栏「匹配」3D 图标（选中态）
+tb_message.png       — 底栏「消息」
+tb_my.png            — 底栏「我的」
+
+弹层页面（点击卡片跳转）：
+  多人 — 遮罩 Figma 3588:7917 + 弹层 3588:6766 → pages/matching/multi.vue
+  单人 — 遮罩 Figma 3588:7956 + 弹层 3588:6779 → pages/matching/single.vue
+
+字体：复用 styles/figma-my-fonts.scss 中 .ff-yuan（Alimama FangYuanTi VF）
