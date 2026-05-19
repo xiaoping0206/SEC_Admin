@@ -251,8 +251,35 @@ function calcMbtiScore(taker, giver, dimensionRules, modifierRules, mbtiConfig) 
  *   hobby × weight_hobby + lifestyle × weight_lifestyle
  *   + personality × weight_personality + comm_style × weight_comm
  *
- * envItems 当前未参与计算（env_tags 已按类别组织），保留参数以备后续校验扩展
  */
+function resolveEnvItemCodes(tags, category, envItems) {
+  const arr = Array.isArray(tags?.[category]) ? tags[category] : []
+  const catItems = (envItems || []).filter(
+    (i) => String(i?.category ?? '').trim() === category
+  )
+  const codes = new Set()
+  const out = []
+
+  for (const v of arr) {
+    const s = String(v ?? '').trim()
+    if (!s) continue
+    let code = s
+    const byCode = catItems.find((i) => String(i.item_code ?? '').trim() === s)
+    if (byCode) {
+      code = String(byCode.item_code).trim()
+    } else {
+      const byLabel = catItems.find(
+        (i) => String(i.item_name_zh ?? i.label ?? '').trim() === s
+      )
+      if (byLabel) code = String(byLabel.item_code ?? '').trim()
+    }
+    if (!code || codes.has(code)) continue
+    codes.add(code)
+    out.push(code)
+  }
+  return out
+}
+
 function calcEnvScore(taker, giver, envItems, envScoreRules, envConfig) {
   const takerTags = taker.env_tags ?? {}
   const giverTags = giver.env_tags ?? {}
@@ -268,8 +295,8 @@ function calcEnvScore(taker, giver, envItems, envScoreRules, envConfig) {
   let total = 0
 
   Object.entries(CATEGORY_WEIGHTS).forEach(([cat, weight]) => {
-    const takerItems = Array.isArray(takerTags[cat]) ? takerTags[cat] : []
-    const giverItems = Array.isArray(giverTags[cat]) ? giverTags[cat] : []
+    const takerItems = resolveEnvItemCodes(takerTags, cat, envItems)
+    const giverItems = resolveEnvItemCodes(giverTags, cat, envItems)
 
     const overlapCount = takerItems.filter(v => giverItems.includes(v)).length
     const minCount     = Math.min(takerItems.length, giverItems.length)

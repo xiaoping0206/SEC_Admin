@@ -1,96 +1,131 @@
 <template>
   <view class="page">
-    <u-navbar
+    <MatchingSelectNav
       title="选择老人"
-      :fixed="true"
-      :placeholder="true"
-      :safe-area-inset-top="true"
-      bg-color="#ffffff"
-      :auto-back="true"
-      left-icon="arrow-left"
-      right-icon="search"
-      @click-right="goSearch"
+      @back="goBack"
+      @search="goSearch"
     />
 
-    <scroll-view v-if="!empty" scroll-y class="list">
-      <view
-        v-for="item in displayList"
-        :key="item._id"
-        class="cell"
-        @tap="pick(item)"
+    <view v-if="loading" class="loading">
+      <text class="loading__tx ff-yuan">加载中…</text>
+    </view>
+
+    <!-- Figma 3588:7706 选择老人-空 -->
+    <MatchingSelectEmpty
+      v-else-if="empty"
+      create-label="新建老人"
+      :pad-top-px="emptyPadPx"
+      @create="goForm"
+    />
+
+    <!-- Figma 3588:7775 选择老人_有 -->
+    <template v-else>
+      <scroll-view
+        scroll-y
+        class="list"
+        :style="{ paddingTop: listPadPx + 'px', height: scrollHPx + 'px' }"
+        :show-scrollbar="false"
       >
-        <view class="ava" />
-        <text class="name">{{ item.name }}</text>
-        <view class="chk" :class="{ 'chk--on': selectedId === item._id }" />
+        <view
+          v-for="item in displayList"
+          :key="item._id"
+          class="row"
+          @tap="pick(item)"
+        >
+          <view class="row__ava" :style="{ background: avatarColor(item.name) }">
+            <text class="row__ava-tx ff-yuan">{{ avatarInitial(item.name) }}</text>
+          </view>
+          <text class="row__name ff-yuan">{{ item.name }}</text>
+          <image
+            class="row__load row__load--taker"
+            :src="TAKER_LOAD_ICON[getTakerLoadKey(item)]"
+            mode="aspectFit"
+          />
+        </view>
+      </scroll-view>
+
+      <view class="foot">
+        <view class="foot__fade" />
+        <view class="foot__btn" @tap="goForm">
+          <text class="foot__btn-tx ff-yuan">新建老人</text>
+        </view>
       </view>
-    </scroll-view>
-
-    <view v-else class="empty">
-      <view class="empty__pic" />
-      <text class="empty__hint">空的，去新建</text>
-      <button class="empty__btn" @tap="goForm">新建老人档案</button>
-    </view>
-
-    <view v-if="!empty" class="foot">
-      <button class="foot__btn" @tap="goForm">新建档案</button>
-    </view>
+    </template>
   </view>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import MatchingSelectNav from '@/components/matching/MatchingSelectNav.vue'
+import MatchingSelectEmpty from '@/components/matching/MatchingSelectEmpty.vue'
 import { useMatchingStore } from '@/store/matching'
-import { unwrapCloudObjectData } from '@/utils/cloud-result.js'
+import {
+  avatarColor,
+  fetchActiveTakers,
+  getTakerLoadKey,
+  TAKER_LOAD_ICON
+} from '@/utils/matching-select.js'
 
 const list = ref([])
 const loading = ref(true)
-const selectedId = ref('')
+const listPadPx = ref(110)
+const scrollHPx = ref(600)
+const emptyPadPx = ref(187)
 
 const matchingStore = useMatchingStore()
 
-const empty = computed(() => !loading.value && (!list.value || list.value.length === 0))
-
+const empty = computed(() => !loading.value && !list.value.length)
 const displayList = computed(() => list.value)
 
-function filterRows(rows) {
-  return (rows || []).filter(
-    (r) =>
-      r &&
-      !r.is_deleted &&
-      (r.status === 'active' || r.status === undefined || r.status === '')
-  )
+function avatarInitial(name) {
+  const s = String(name || '').trim()
+  return s ? s.slice(0, 1) : '老'
+}
+
+function layout() {
+  const s = uni.getSystemInfoSync()
+  listPadPx.value = uni.upx2px(220)
+  scrollHPx.value = Math.max(300, s.windowHeight)
+  emptyPadPx.value = uni.upx2px(374)
 }
 
 async function fetchList() {
   loading.value = true
   try {
-    const tm = uniCloud.importObject('taker-manager')
-    const res = await tm.getTakerList({ page: 1, pageSize: 500 })
-    const raw = unwrapCloudObjectData(res) ?? res?.data ?? []
-    const arr = Array.isArray(raw) ? raw : []
-    list.value = filterRows(arr)
-    const sid = matchingStore.selectedTaker?._id
-    if (sid) selectedId.value = sid
+    list.value = await fetchActiveTakers()
   } finally {
     loading.value = false
   }
 }
 
+onMounted(layout)
+
 onLoad((opts) => {
   const mode = opts?.mode === 'single' ? 'single' : 'multi'
   matchingStore.setMatchMode(mode)
+  if (opts?.state === 'empty') {
+    list.value = []
+    loading.value = false
+    return
+  }
   fetchList()
 })
 
 function pick(item) {
-  selectedId.value = item._id
   matchingStore.setSelectedTaker(item)
   uni.navigateBack()
 }
 
+function goBack() {
+  uni.navigateBack()
+}
+
 function goForm() {
-  uni.navigateTo({ url: '/pages/taker/form' })
+  const mode = matchingStore.matchMode === 'single' ? 'single' : 'multi'
+  uni.navigateTo({
+    url: `/pages/taker/form?from=matching&mode=${mode}`
+  })
 }
 
 function goSearch() {
@@ -99,91 +134,75 @@ function goSearch() {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
+$page-light: #faf6ff;
+$page-deep: #eadaff;
+$match-purple: #9245f9;
+$match-purple-light: #c766ff;
 
 .page {
   min-height: 100vh;
-  background: #f5f7fa;
-  padding-bottom: 180rpx;
+  background: linear-gradient(180deg, $page-light 0%, $page-deep 100%);
   box-sizing: border-box;
+}
+
+.loading {
+  padding-top: 400rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.loading__tx {
+  font-size: 28rpx;
+  color: #6c5c76;
 }
 
 .list {
-  height: calc(100vh - 200rpx);
-  padding: 24rpx 32rpx 0;
   box-sizing: border-box;
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+  padding-bottom: 240rpx;
 }
 
-.cell {
+.row {
+  height: 120rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 100rpx;
-  padding: 0 20rpx;
-  margin-bottom: 16rpx;
-  background: #ffffff;
-  border-radius: 16rpx;
-}
-
-.ava {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 50%;
-  background: #d9dfe8;
-  margin-right: 20rpx;
-  flex-shrink: 0;
-}
-
-.name {
-  flex: 1;
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-
-.chk {
-  width: 28rpx;
-  height: 28rpx;
-  border-radius: 50%;
-  border: 2rpx solid #d9dfe8;
+  padding: 0 36rpx;
   box-sizing: border-box;
 }
 
-.chk--on {
-  background: #4a90e2;
-  border-color: #4a90e2;
-}
-
-.empty {
-  padding-top: 200rpx;
+.row__ava {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
-.empty__pic {
-  width: 108rpx;
-  height: 108rpx;
-  border-radius: 16rpx;
-  background: #e8ecf2;
-  margin-bottom: 32rpx;
+.row__ava-tx {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ffffff;
 }
 
-.empty__hint {
+.row__name {
+  flex: 1;
   font-size: 28rpx;
-  color: $color-text-secondary;
-  margin-bottom: 40rpx;
+  font-weight: 500;
+  color: #31233a;
+  line-height: normal;
 }
 
-.empty__btn {
-  width: 400rpx;
-  height: 88rpx;
-  line-height: 88rpx;
-  border-radius: 44rpx;
-  background: $color-primary;
-  color: #fff;
-  border: none;
-  font-size: 30rpx;
+.row__load--taker {
+  width: 42rpx;
+  height: 42rpx;
+  flex-shrink: 0;
 }
 
 .foot {
@@ -191,19 +210,38 @@ function goSearch() {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 24rpx 72rpx calc(24rpx + env(safe-area-inset-bottom));
-  background: #f5f7fa;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.foot__fade {
+  height: 232rpx;
+  background: linear-gradient(
+    180deg,
+    rgba(240, 232, 251, 0) 0%,
+    #f0e8fb 23.45%,
+    #f0e8fb 100%
+  );
 }
 
 .foot__btn {
-  width: 100%;
-  height: 92rpx;
-  line-height: 92rpx;
-  border-radius: 46rpx;
-  border: none;
-  background: $color-primary;
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: 600;
+  position: absolute;
+  left: 60rpx;
+  right: 60rpx;
+  bottom: calc(24rpx + env(safe-area-inset-bottom));
+  height: 96rpx;
+  border-radius: 100rpx;
+  background: linear-gradient(47.18deg, $match-purple-light 11.9%, $match-purple 94.02%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.foot__btn-tx {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: normal;
 }
 </style>

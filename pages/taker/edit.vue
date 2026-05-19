@@ -1,119 +1,181 @@
 <template>
   <view class="page">
-    <u-navbar
-      title="个人信息"
-      :fixed="true"
-      :placeholder="true"
-      :safe-area-inset-top="true"
-      bg-color="#ffffff"
-      :auto-back="true"
-      left-icon="arrow-left"
-    />
+    <view class="nav" :style="{ paddingTop: statusBarPx + 'px' }">
+      <view class="nav__bar" :style="{ height: navBarPx + 'px' }">
+        <view class="nav__back" @tap="goBack">
+          <image
+            class="nav__back-ico"
+            src="/static/figma/taker-form/ic_back.svg"
+            mode="aspectFit"
+          />
+        </view>
+        <text class="nav__ttl ff-yuan">个人资料</text>
+      </view>
+    </view>
 
-    <view v-if="loading" class="state">
-      <text class="muted">加载中…</text>
+    <view v-if="loading" class="state" :style="{ paddingTop: navOuterPx + 'px' }">
+      <text class="state__txt ff-yuan">加载中…</text>
     </view>
 
     <scroll-view
       v-else
       scroll-y
       class="scroll"
-      :style="{ height: scrollH + 'px' }"
+      :style="{ height: scrollH + 'px', paddingTop: navOuterPx + 'px' }"
+      :show-scrollbar="false"
     >
-      <view class="pad">
-        <text class="label">*你的名字</text>
+      <view class="body">
+        <text class="s1-label ff-yuan">*名字</text>
         <input
-          class="input"
+          class="s1-field s1-field--input ff-yuan"
           type="text"
           :value="form.name"
           maxlength="20"
-          placeholder="你的名字"
-          placeholder-class="input-ph"
+          placeholder="请输入"
+          placeholder-class="s1-ph"
           @input="form.name = $event.detail.value"
         />
 
-        <text class="label">*性别</text>
-        <view class="gender">
-          <view
-            class="gender__chip"
-            :class="{ 'gender__chip--on': form.gender === 'female' }"
-            @tap="form.gender = 'female'"
-          >
-            <text class="gender__txt">女</text>
+        <text class="s1-label ff-yuan">*性别</text>
+        <view class="s1-gender">
+          <view class="s1-gender__item" @tap="form.gender = 'female'">
+            <image
+              class="s1-gender__ava"
+              src="/static/figma/taker-form/gender_female.png"
+              mode="aspectFit"
+            />
+            <view
+              class="s1-gender__pill"
+              :class="{ 's1-gender__pill--on': form.gender === 'female' }"
+            >
+              <text
+                class="s1-gender__txt ff-yuan"
+                :class="{ 's1-gender__txt--on': form.gender === 'female' }"
+              >
+                女
+              </text>
+            </view>
           </view>
-          <view
-            class="gender__chip"
-            :class="{ 'gender__chip--on': form.gender === 'male' }"
-            @tap="form.gender = 'male'"
-          >
-            <text class="gender__txt">男</text>
+          <view class="s1-gender__item" @tap="form.gender = 'male'">
+            <image
+              class="s1-gender__ava"
+              src="/static/figma/taker-form/gender_male.png"
+              mode="aspectFit"
+            />
+            <view
+              class="s1-gender__pill"
+              :class="{ 's1-gender__pill--on': form.gender === 'male' }"
+            >
+              <text
+                class="s1-gender__txt ff-yuan"
+                :class="{ 's1-gender__txt--on': form.gender === 'male' }"
+              >
+                男
+              </text>
+            </view>
           </view>
         </view>
 
-        <text class="label">*设置生日</text>
-        <view class="input input--hit" @tap="showBirth = true">
+        <text class="s1-label ff-yuan">*生日</text>
+        <view class="s1-field s1-field--hit" @tap="showBirth = true">
           <text :class="birthHintClass">{{ birthDisplay }}</text>
+          <image
+            class="s1-field__chev"
+            src="/static/figma/taker-form/ic_chevron.svg"
+            mode="aspectFit"
+          />
         </view>
 
-        <view style="display:flex;gap:20rpx;margin-top:16rpx">
-          <view style="flex:1">
-            <text class="label field-label">五行</text>
-            <view class="readonly-field">{{ wuxingLabel(form.wuxing) }}</view>
+        <view class="dual-row">
+          <view class="dual-row__col">
+            <text class="s1-label ff-yuan">五行</text>
+            <view class="s1-field s1-field--ro">
+              <text class="s1-ro ff-yuan">{{ wuxingLabel(form.wuxing) || '—' }}</text>
+            </view>
           </view>
-          <view style="flex:1">
-            <text class="label field-label">星座</text>
-            <view class="readonly-field">{{ form.constellation || '—' }}</view>
+          <view class="dual-row__col">
+            <text class="s1-label ff-yuan">星座</text>
+            <view class="s1-field s1-field--ro">
+              <text class="s1-ro ff-yuan">{{ form.constellation || '—' }}</text>
+            </view>
           </view>
         </view>
 
-        <text class="label">*MBTI</text>
-        <view class="input input--hit" @tap="showMbti = true">
+        <text class="s1-label ff-yuan">MBTI</text>
+        <view class="s1-field s1-field--hit" @tap="showMbti = true">
           <text :class="mbtiFieldClass">{{ form.mbti || '请选择' }}</text>
+          <image
+            class="s1-field__chev"
+            src="/static/figma/taker-form/ic_chevron.svg"
+            mode="aspectFit"
+          />
         </view>
 
-        <text class="label">*慢性病史</text>
-        <view class="input input--hit" @tap="showDisease = true">
+        <text class="s1-label ff-yuan">*慢性病</text>
+        <view class="s1-field s1-field--hit" @tap="showDisease = true">
           <text :class="chronicFieldClass">{{ chronicDisplay }}</text>
+          <image
+            class="s1-field__chev"
+            src="/static/figma/taker-form/ic_chevron.svg"
+            mode="aspectFit"
+          />
         </view>
 
-        <text class="label">*标签</text>
-        <view class="chip-row">
-          <text v-for="(c, i) in tagChips" :key="'t-' + i" class="chip">{{ c }}</text>
-          <view class="chip chip--add" @tap="showTag = true">
-            <text class="chip__plus">+</text>
+        <text class="s1-label ff-yuan">标签</text>
+        <view class="s1-field s1-field--hit s1-field--tags" @tap="goTags">
+          <view class="tag-inline">
+            <template v-if="tagChips.length">
+              <text
+                v-for="(c, i) in tagChips"
+                :key="'t-' + i"
+                class="tag-inline__chip ff-yuan"
+              >
+                {{ c }}
+              </text>
+            </template>
+            <text v-else class="s1-ph ff-yuan">请选择</text>
+          </view>
+          <view class="tag-add" @tap.stop="goTags">
+            <text class="tag-add__plus">+</text>
           </view>
         </view>
 
-        <text class="label">护理等级</text>
-        <picker
-          mode="selector"
-          :range="careLevelRange"
-          :value="careLevelPickerIndex"
-          @change="onCareLevelChange"
-        >
-          <view class="input input--hit">
-            <text :class="careFieldClass">{{ careLevelLabel }}</text>
-          </view>
-        </picker>
+        <text class="s1-label ff-yuan">护理等级</text>
+        <view class="s1-field s1-field--hit" @tap="showCareLevel = true">
+          <text :class="careFieldClass">{{ careLevelLabel }}</text>
+          <image
+            class="s1-field__chev"
+            src="/static/figma/taker-form/ic_chevron.svg"
+            mode="aspectFit"
+          />
+        </view>
 
-        <text class="label">分配护工</text>
+        <text class="s1-label ff-yuan">分配护工</text>
         <picker
           mode="selector"
           :range="giverPickerRange"
           :value="giverPickerIndex"
           @change="onGiverChange"
         >
-          <view class="input input--hit">
+          <view class="s1-field s1-field--hit">
             <text :class="giverFieldClass">{{ giverDisplay }}</text>
+            <image
+              class="s1-field__chev"
+              src="/static/figma/taker-form/ic_chevron.svg"
+              mode="aspectFit"
+            />
           </view>
         </picker>
 
-        <text class="label">*状态</text>
-        <picker mode="selector" :range="statusRange" :value="statusIndex" @change="onStatusChange">
-          <view class="input input--hit">
-            <text class="bd-t">{{ statusLabel }}</text>
-          </view>
-        </picker>
+        <text class="s1-label ff-yuan">状态</text>
+        <view class="s1-field s1-field--hit" @tap="showStatus = true">
+          <text class="s1-val ff-yuan">{{ statusLabel }}</text>
+          <image
+            class="s1-field__chev"
+            src="/static/figma/taker-form/ic_chevron.svg"
+            mode="aspectFit"
+          />
+        </view>
       </view>
     </scroll-view>
 
@@ -125,9 +187,10 @@
       @confirm="onBirthConfirm"
     />
 
-    <DiseasePicker
+    <ChronicDiseasePicker
       :visible="showDisease"
-      :value="selectedDiseases"
+      :options="diseaseOptions"
+      :initial-value="chronicInitialValue"
       @close="showDisease = false"
       @confirm="onDiseaseConfirm"
     />
@@ -136,14 +199,35 @@
       :visible="showMbti"
       :value="form.mbti"
       @close="showMbti = false"
-      @confirm="(s) => (form.mbti = s)"
+      @confirm="onMbtiConfirm"
     />
 
-    <TagPicker :visible="showTag" :value="form.env_tags" @close="showTag = false" @confirm="onTagsConfirm" />
+    <CareLevelPicker
+      :visible="showCareLevel"
+      :options="careLevelPickerOptions"
+      :initial-index="careLevelPickerIndex"
+      @close="showCareLevel = false"
+      @confirm="onCareLevelConfirm"
+    />
 
-    <view class="footer">
-      <button class="cta" :disabled="saving || !currentId" @tap="save">保存</button>
-      <text class="del" @tap="confirmDelete">删除</text>
+    <StatusPicker
+      :visible="showStatus"
+      :options="statusRange"
+      :initial-index="statusIndex"
+      @close="showStatus = false"
+      @confirm="onStatusConfirm"
+    />
+
+    <view v-if="!loading" class="edit-foot">
+      <view class="edit-foot__fade" />
+      <button
+        class="edit-foot__btn ff-yuan"
+        :disabled="saving || !currentId"
+        @tap="save"
+      >
+        保存
+      </button>
+      <text class="edit-foot__del ff-yuan" @tap="confirmDelete">删除</text>
     </view>
   </view>
 </template>
@@ -152,29 +236,46 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import BirthdayPicker from '@/components/common/BirthdayPicker.vue'
-import DiseasePicker from '@/components/common/DiseasePicker.vue'
+import ChronicDiseasePicker from '@/components/common/ChronicDiseasePicker.vue'
 import MbtiPicker from '@/components/common/MbtiPicker.vue'
-import TagPicker from '@/components/common/TagPicker.vue'
-import {
-  calcWuxingFromBirthday,
-  calcSixiangFromBirthday
-} from '@/utils/lunar.js'
-import { formatWuxing as wuxingLabel } from '@/utils/format.js'
+import CareLevelPicker from '@/components/common/CareLevelPicker.vue'
+import StatusPicker from '@/components/common/StatusPicker.vue'
+import { deriveBirthFields } from '@/utils/lunar.js'
+import { formatWuxing as wuxingLabel, normalizeBirthday } from '@/utils/format.js'
 import { parseCloudError } from '@/utils/cloud-error.js'
+import { useRulesStore } from '@/store/rules.js'
+import { envTagsToDisplayList, normalizeStoredEnvTags } from '@/utils/env-tags.js'
 
 const currentId = ref('')
 const loading = ref(true)
 const saving = ref(false)
 const scrollH = ref(500)
 
+const statusBarPx = ref(20)
+const navBarPx = ref(44)
+const navOuterPx = ref(64)
+
 const showBirth = ref(false)
 const showDisease = ref(false)
 const showMbti = ref(false)
-const showTag = ref(false)
+const showCareLevel = ref(false)
+const showStatus = ref(false)
+
+const diseaseOptions = [
+  '无',
+  '糖尿病',
+  '心脏病',
+  '高血压',
+  '阿尔兹海默症',
+  '关节炎',
+  '慢阻肺',
+  '脑卒中后遗症'
+]
 
 const selectedDiseases = ref(['无'])
 
 const giverRows = ref([])
+const rulesStore = useRulesStore()
 
 const form = reactive({
   name: '',
@@ -196,13 +297,14 @@ const form = reactive({
   status: 'active'
 })
 
-const careLevelRange = ['请选择', '1 自理', '2 轻度', '3 中度', '4 重度', '5 特重']
+const careLevelPickerOptions = ['请选择', '1 自理', '2 轻度', '3 中度', '4 重度', '5 特重']
+const careLevelRange = careLevelPickerOptions
 const statusRange = ['有效', '停用', '归档']
 const statusValues = ['active', 'inactive', 'archived']
 
 const birthDisplay = computed(() => {
   const b = form.birthday
-  if (!b || !b.solar) return '点击选择生日'
+  if (!b || !b.solar) return '请设置生日'
   const sy = b.solar
   const mo = `${sy.month}`.padStart(2, '0')
   const d = `${sy.day}`.padStart(2, '0')
@@ -211,21 +313,20 @@ const birthDisplay = computed(() => {
 })
 
 const birthHintClass = computed(() =>
-  form.birthday && form.birthday.solar ? 'bd-t' : 'bd-t bd-t--ph'
+  form.birthday && form.birthday.solar ? 's1-val ff-yuan' : 's1-ph ff-yuan'
 )
 
 const mbtiFieldClass = computed(() =>
-  form.mbti && form.mbti.length === 4 ? 'bd-t' : 'bd-t bd-t--ph'
+  form.mbti && form.mbti.length === 4 ? 's1-val ff-yuan' : 's1-ph ff-yuan'
 )
 
 const chronicFieldClass = computed(() =>
-  chronicDisplay.value && chronicDisplay.value !== '无' ? 'bd-t' : 'bd-t bd-t--ph'
+  chronicDisplay.value ? 's1-val ff-yuan' : 's1-ph ff-yuan'
 )
 
-const chronicDisplay = computed(() => {
-  if (selectedDiseases.value.includes('无') || !selectedDiseases.value.length) return '无'
-  return selectedDiseases.value.join('、')
-})
+const chronicInitialValue = computed(() => selectedDiseases.value[0] || '无')
+
+const chronicDisplay = computed(() => selectedDiseases.value[0] || '无')
 
 const careLevelLabel = computed(() => {
   const c = form.care_level
@@ -235,8 +336,8 @@ const careLevelLabel = computed(() => {
 
 const careFieldClass = computed(() =>
   typeof form.care_level === 'number' && form.care_level >= 1 && form.care_level <= 5
-    ? 'bd-t'
-    : 'bd-t bd-t--ph'
+    ? 's1-val ff-yuan'
+    : 's1-ph ff-yuan'
 )
 
 const careLevelPickerIndex = computed(() => {
@@ -245,9 +346,10 @@ const careLevelPickerIndex = computed(() => {
   return c
 })
 
-function onCareLevelChange(e) {
-  const i = Number(e.detail.value)
+function onCareLevelConfirm(index) {
+  const i = Number(index)
   form.care_level = i === 0 ? null : i
+  showCareLevel.value = false
 }
 
 const giverPickerRange = computed(() => {
@@ -269,7 +371,7 @@ const giverDisplay = computed(() => {
 })
 
 const giverFieldClass = computed(() =>
-  form.assigned_giver_id ? 'bd-t' : 'bd-t bd-t--ph'
+  form.assigned_giver_id ? 's1-val ff-yuan' : 's1-ph ff-yuan'
 )
 
 function onGiverChange(e) {
@@ -292,42 +394,63 @@ const statusLabel = computed(() => {
   return i >= 0 ? statusRange[i] : statusRange[0]
 })
 
-function onStatusChange(e) {
-  const i = Number(e.detail.value)
+function onStatusConfirm(index) {
+  const i = Number(index)
   form.status = statusValues[i] || 'active'
+  showStatus.value = false
 }
 
-const tagChips = computed(() => {
-  const out = []
-  const env = form.env_tags
-  if (!env || typeof env !== 'object') return out
-  ;['hobby', 'lifestyle', 'personality', 'comm_style'].forEach((k) => {
-    const arr = env[k]
-    if (Array.isArray(arr)) out.push(...arr)
+function goTags() {
+  uni.navigateTo({
+    url: '/pages/taker/tags',
+    events: {
+      confirm: (payload) => {
+        const normalized = normalizeStoredEnvTags(payload || {}, rulesStore.envTagGroups)
+        form.env_tags.hobby = [...(normalized.hobby || [])]
+        form.env_tags.lifestyle = [...(normalized.lifestyle || [])]
+        form.env_tags.personality = [...(normalized.personality || [])]
+        form.env_tags.comm_style = [...(normalized.comm_style || [])]
+      }
+    },
+    success(res) {
+      res.eventChannel.emit('init', {
+        env_tags: {
+          hobby: [...(form.env_tags.hobby || [])],
+          lifestyle: [...(form.env_tags.lifestyle || [])],
+          personality: [...(form.env_tags.personality || [])],
+          comm_style: [...(form.env_tags.comm_style || [])]
+        }
+      })
+    }
   })
-  return out
-})
+}
+
+const tagChips = computed(() =>
+  envTagsToDisplayList(form.env_tags, rulesStore.envTagGroups)
+)
+
+function layoutNav() {
+  const s = uni.getSystemInfoSync()
+  statusBarPx.value = s.statusBarHeight || 20
+  navBarPx.value = uni.upx2px(88)
+  navOuterPx.value = statusBarPx.value + navBarPx.value
+}
 
 function layout() {
+  layoutNav()
   const s = uni.getSystemInfoSync()
-  const nav = (s.statusBarHeight || 20) + 44
-  const foot = uni.upx2px(200)
-  scrollH.value = Math.max(200, s.windowHeight - nav - foot)
+  scrollH.value = Math.max(200, s.windowHeight)
+}
+
+function goBack() {
+  uni.navigateBack()
 }
 
 function syncBirthDerived() {
-  if (!form.birthday?.solar) {
-    form.wuxing = ''
-    form.sixiang = ''
-    form.constellation = ''
-    return
-  }
-  const { year, month, day } = form.birthday.solar
-  const { wuxing } = calcWuxingFromBirthday(year, month, day)
-  const { sixiang, constellation } = calcSixiangFromBirthday(month, day)
-  form.wuxing = wuxing
-  form.sixiang = sixiang
-  form.constellation = constellation || ''
+  const derived = deriveBirthFields(form.birthday)
+  form.wuxing = derived.wuxing
+  form.sixiang = derived.sixiang
+  form.constellation = derived.constellation || ''
 }
 
 function onBirthConfirm(payload) {
@@ -336,30 +459,25 @@ function onBirthConfirm(payload) {
   syncBirthDerived()
 }
 
-function onDiseaseConfirm(arr) {
-  selectedDiseases.value = Array.isArray(arr) && arr.length ? arr : ['无']
+function onDiseaseConfirm(val) {
+  selectedDiseases.value = [val || '无']
   form.chronic_disease = normalizeChronicString()
+  showDisease.value = false
 }
 
-function onTagsConfirm(payload) {
-  const v = payload || {}
-  form.env_tags = {
-    hobby: [...(v.hobby || [])],
-    lifestyle: [...(v.lifestyle || [])],
-    personality: [...(v.personality || [])],
-    comm_style: [...(v.comm_style || [])]
-  }
+function onMbtiConfirm(s) {
+  form.mbti = s
+  showMbti.value = false
 }
 
 function normalizeChronicString() {
-  if (selectedDiseases.value.includes('无')) return '无'
-  return selectedDiseases.value.join('，')
+  return selectedDiseases.value[0] || '无'
 }
 
 function hydrateChronicFromDoc(raw) {
   if (Array.isArray(raw)) {
     const arr = raw.map((x) => String(x).trim()).filter(Boolean)
-    selectedDiseases.value = arr.length ? arr : ['无']
+    selectedDiseases.value = arr.length ? [arr[0]] : ['无']
     return
   }
   const s = String(raw || '').trim()
@@ -368,7 +486,7 @@ function hydrateChronicFromDoc(raw) {
     return
   }
   const arr = s.split(/[,，]/).map((x) => x.trim()).filter(Boolean)
-  selectedDiseases.value = arr.length ? arr : ['无']
+  selectedDiseases.value = arr.length ? [arr[0]] : ['无']
 }
 
 async function loadGivers() {
@@ -389,6 +507,7 @@ async function load() {
   }
   loading.value = true
   try {
+    await rulesStore.fetchActiveEnvTags()
     await loadGivers()
     const tm = uniCloud.importObject('taker-manager')
     const res = await tm.getTakerDetail({ id: currentId.value })
@@ -399,7 +518,7 @@ async function load() {
     }
     form.name = d.name || ''
     form.gender = d.gender || ''
-    form.birthday = d.birthday || null
+    form.birthday = normalizeBirthday(d.birthday)
     form.mbti = d.mbti || ''
     form.wuxing = d.wuxing || ''
     form.sixiang = d.sixiang || ''
@@ -407,10 +526,11 @@ async function load() {
     hydrateChronicFromDoc(d.chronic_disease)
     form.chronic_disease = normalizeChronicString()
     if (d.env_tags && typeof d.env_tags === 'object') {
-      form.env_tags.hobby = [...(d.env_tags.hobby || [])]
-      form.env_tags.lifestyle = [...(d.env_tags.lifestyle || [])]
-      form.env_tags.personality = [...(d.env_tags.personality || [])]
-      form.env_tags.comm_style = [...(d.env_tags.comm_style || [])]
+      const normalized = normalizeStoredEnvTags(d.env_tags, rulesStore.envTagGroups)
+      form.env_tags.hobby = [...(normalized.hobby || [])]
+      form.env_tags.lifestyle = [...(normalized.lifestyle || [])]
+      form.env_tags.personality = [...(normalized.personality || [])]
+      form.env_tags.comm_style = [...(normalized.comm_style || [])]
     }
     form.care_level =
       typeof d.care_level === 'number' && !Number.isNaN(d.care_level)
@@ -428,6 +548,7 @@ async function load() {
     uni.showToast({ title: '加载失败', icon: 'none' })
   } finally {
     loading.value = false
+    layout()
   }
 }
 
@@ -528,178 +649,320 @@ function confirmDelete() {
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
 
+$match-purple: #9245f9;
+$match-purple-light: #c766ff;
+
 .page {
   min-height: 100vh;
-  background: $color-bg;
+  background: linear-gradient(180deg, #faf6ff 0%, #eadaff 100%);
   box-sizing: border-box;
+}
+
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 100;
+  background: #faf6ff;
+}
+
+.nav__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav__back {
+  position: absolute;
+  left: 32rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav__back-ico {
+  width: 24rpx;
+  height: 48rpx;
+}
+
+.nav__ttl {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: rgba(49, 35, 58, 0.9);
 }
 
 .scroll {
   width: 100%;
-}
-
-.pad {
-  padding: 24rpx $page-padding-x 24rpx;
-  padding-bottom: calc(200rpx + env(safe-area-inset-bottom));
-}
-
-.label {
-  display: block;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  margin: 16rpx 0 8rpx;
-}
-
-.input {
-  height: 80rpx;
-  padding: 0 24rpx;
-  border-radius: 12rpx;
-  background: #fff;
-  border: 1rpx solid $color-border;
-  font-size: $font-size-base;
-  color: $color-text-primary;
   box-sizing: border-box;
 }
 
-.input-ph {
-  color: $color-text-secondary;
+.body {
+  padding: 24rpx 40rpx calc(320rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
-.input--hit {
+.s1-label {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #6c5c76;
+  line-height: normal;
+  margin-bottom: 24rpx;
+}
+
+.s1-field {
+  height: 84rpx;
+  margin-bottom: 48rpx;
+  padding: 0 40rpx;
+  border-radius: 100rpx;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.s1-field--input {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #31233a;
+}
+
+.s1-field--hit {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.s1-field--ro {
   display: flex;
   align-items: center;
+  height: 76rpx;
+  margin-bottom: 48rpx;
+  background: rgba(255, 255, 255, 0.85);
 }
 
-.bd-t {
-  font-size: $font-size-base;
-  color: $color-text-primary;
+.s1-field--tags {
+  height: auto;
+  min-height: 84rpx;
+  padding-top: 16rpx;
+  padding-bottom: 16rpx;
 }
 
-.bd-t--ph {
-  color: $color-text-secondary;
+.s1-ph {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #ddc7f9;
+  line-height: normal;
 }
 
-.readonly-field,
-.readonly-input {
-  margin-top: 8rpx;
-  min-height: 80rpx;
-  padding: 0 24rpx;
-  display: flex;
-  align-items: center;
-  border-radius: 12rpx;
-  background: #f5f5f5;
-  border: 1rpx solid #e8e8e8;
-  font-size: $font-size-base;
-  color: #999;
+.s1-val {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #31233a;
+  line-height: normal;
 }
 
-.field-label {
-  margin-top: 0;
+.s1-ro {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #8d7a99;
+  line-height: normal;
 }
 
-.gender {
+.s1-field__chev {
+  width: 44rpx;
+  height: 44rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  display: block;
+}
+
+.dual-row {
   display: flex;
   flex-direction: row;
   gap: 24rpx;
 }
 
-.gender__chip {
+.dual-row__col {
   flex: 1;
-  height: 80rpx;
+  min-width: 0;
+}
+
+.s1-gender {
+  display: flex;
+  flex-direction: row;
+  gap: 40rpx;
+  margin-bottom: 48rpx;
+}
+
+.s1-gender__item {
+  position: relative;
+  width: 200rpx;
+  height: 124rpx;
+  flex-shrink: 0;
+}
+
+.s1-gender__ava {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 124rpx;
+  height: 124rpx;
+  z-index: 2;
+}
+
+.s1-gender__pill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 76rpx;
+  border-radius: 100rpx;
+  background: #ffffff;
+  border: 2rpx solid transparent;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 12rpx;
-  border: 1rpx solid $color-border;
-  background: #fff;
+  padding-left: 40rpx;
+  box-sizing: border-box;
 }
 
-.gender__chip--on {
-  background: #4a90e2;
-  border-color: #4a90e2;
+.s1-gender__pill--on {
+  border-color: $match-purple;
 }
 
-.gender__txt {
-  font-size: $font-size-base;
-  color: $color-text-primary;
+.s1-gender__txt {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #31233a;
+  line-height: normal;
 }
 
-.gender__chip--on .gender__txt {
-  color: #fff;
+.s1-gender__txt--on {
+  font-weight: 700;
+  color: $match-purple;
 }
 
-.chip-row {
+.tag-inline {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 12rpx;
   align-items: center;
-  margin-bottom: 8rpx;
 }
 
-.chip {
+.tag-inline__chip {
+  padding: 8rpx 20rpx;
+  border-radius: 40rpx;
+  background: #eadaff;
   font-size: 22rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 999rpx;
-  background: rgba(74, 144, 226, 0.12);
-  color: #4a90e2;
+  font-weight: 500;
+  color: #590092;
+  line-height: 1.3;
 }
 
-.chip--add {
-  min-width: 56rpx;
-  text-align: center;
-  background: #fff;
-  border: 2rpx dashed #ccc;
-  color: #999;
+.tag-add {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  background: linear-gradient(47deg, $match-purple-light 11.9%, $match-purple 94%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 16rpx;
 }
 
-.chip__plus {
-  font-size: 32rpx;
+.tag-add__plus {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #ffffff;
   line-height: 1;
 }
 
-.footer {
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.state__txt {
+  font-size: 28rpx;
+  color: #8d7a99;
+}
+
+.edit-foot {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 24rpx $page-padding-x;
-  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1rpx solid $color-border;
-  box-sizing: border-box;
+  z-index: 90;
+  height: calc(280rpx + env(safe-area-inset-bottom));
+  pointer-events: none;
 }
 
-.cta {
-  width: 100%;
+.edit-foot__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 120rpx;
+  background: linear-gradient(
+    180deg,
+    rgba(240, 232, 251, 0) 0%,
+    #f0e8fb 23.45%,
+    #f0e8fb 100%
+  );
+  pointer-events: none;
+}
+
+.edit-foot__btn {
+  position: absolute;
+  left: 30rpx;
+  right: 30rpx;
+  bottom: calc(88rpx + env(safe-area-inset-bottom));
   height: 96rpx;
   line-height: 96rpx;
-  border-radius: 48rpx;
-  background: #4a90e2;
-  color: #fff;
-  font-size: $font-size-base;
-
-  &::after {
-    border: none;
-  }
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 100rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(47deg, $match-purple-light 11.9%, $match-purple 94%);
+  pointer-events: auto;
 }
 
-.del {
-  display: block;
+.edit-foot__btn::after {
+  border: none;
+}
+
+.edit-foot__btn[disabled] {
+  opacity: 0.55;
+}
+
+.edit-foot__del {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(32rpx + env(safe-area-inset-bottom));
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #8d7a99;
   text-align: center;
-  margin-top: 20rpx;
-  font-size: $font-size-sm;
-  color: #999;
-}
-
-.state {
-  padding: 120rpx 24rpx;
-  display: flex;
-  justify-content: center;
-}
-
-.muted {
-  font-size: $font-size-base;
-  color: $color-text-secondary;
+  line-height: normal;
+  pointer-events: auto;
 }
 </style>

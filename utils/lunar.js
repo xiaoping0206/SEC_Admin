@@ -89,7 +89,39 @@ export function lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeap = false) {
 }
 
 /**
+ * 根据阳历日期对应的农历日柱天干（日干）映射五行
+ */
+export function calcWuxingFromLunarDayStem(year, month, day) {
+  const lunar = solarToLunar(year, month, day)
+  if (lunar?.heavenlyStem && GAN_IDX[lunar.heavenlyStem] != null) {
+    const ganIdx = GAN_IDX[lunar.heavenlyStem]
+    const wx = WUXING_BY_GAN[ganIdx]
+    return {
+      heavenlyDay: lunar.heavenlyStem,
+      heavenlyStem: lunar.heavenlyStem,
+      wuxing: wx,
+      wuxingZh: WUXING_ZH[wx] || ''
+    }
+  }
+  return calcWuxingFromBirthday(year, month, day)
+}
+
+/**
+ * 生日对象 → 五行（农历日干）+ 星座/四象（阳历月日）
+ */
+export function deriveBirthFields(birthday) {
+  if (!birthday?.solar?.year) {
+    return { wuxing: '', sixiang: '', constellation: '' }
+  }
+  const { year, month, day } = birthday.solar
+  const { wuxing } = calcWuxingFromLunarDayStem(year, month, day)
+  const { sixiang, constellation } = calcSixiangFromBirthday(month, day)
+  return { wuxing, sixiang, constellation }
+}
+
+/**
  * 日干五行（基准：1900-01-01 为天干「甲」，序号 0）
+ * @deprecated 优先使用 calcWuxingFromLunarDayStem
  */
 export function calcWuxingFromBirthday(year, month, day) {
   const baseUtc = Date.UTC(1900, 0, 1)

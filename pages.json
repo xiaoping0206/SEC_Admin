@@ -77,21 +77,29 @@
 		{
 			"path": "pages/taker/detail",
 			"style": {
-				"navigationBarTitleText": "个人信息",
+				"navigationBarTitleText": "个人档案",
 				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/taker/edit",
 			"style": {
-				"navigationBarTitleText": "个人信息",
+				"navigationBarTitleText": "个人资料",
 				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/taker/tags",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "选择你的标签"
 			}
 		},
 		{
 			"path": "pages/taker/form",
 			"style": {
-				"navigationBarTitleText": "老人档案"
+				"navigationStyle": "custom",
+				"navigationBarTitleText": ""
 			}
 		},
 		{
@@ -123,7 +131,9 @@
 		{
 			"path": "pages/giver/form",
 			"style": {
-				"navigationBarTitleText": "护工档案"
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "",
+				"disableScroll": true
 			}
 		},
 		{
@@ -151,25 +161,29 @@
 		{
 			"path": "pages/my/account",
 			"style": {
-				"navigationBarTitleText": "账号资料"
+				"navigationBarTitleText": "账号资料",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/my/settings",
 			"style": {
-				"navigationBarTitleText": "设置"
+				"navigationBarTitleText": "设置",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/admin/upload-rules",
 			"style": {
-				"navigationBarTitleText": "规划管理"
+				"navigationBarTitleText": "规则管理",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/admin/version-list",
 			"style": {
-				"navigationBarTitleText": "版本管理"
+				"navigationBarTitleText": "版本管理",
+				"navigationStyle": "custom"
 			}
 		},
 		{

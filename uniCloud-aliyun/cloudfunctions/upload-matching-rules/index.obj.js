@@ -45,6 +45,36 @@ function mergeDefaults(defaults, override = {}) {
   return out
 }
 
+const ENV_CATEGORY_ORDER = ['hobby', 'lifestyle', 'personality', 'comm_style']
+const ENV_CATEGORY_LABELS = {
+  hobby: '兴趣爱好',
+  lifestyle: '生活方式',
+  personality: '性格特征',
+  comm_style: '沟通偏好'
+}
+
+function buildEnvTagGroups(envItems = []) {
+  const bucket = {}
+  for (const key of ENV_CATEGORY_ORDER) bucket[key] = []
+
+  for (const row of envItems) {
+    const cat = String(row?.category ?? '').trim()
+    if (!bucket[cat]) continue
+    const code = String(row?.item_code ?? '').trim()
+    const label = String(row?.item_name_zh ?? row?.label ?? '').trim()
+    if (!code || !label) continue
+    bucket[cat].push({ code, label, sort: Number(row?.sort) || 0 })
+  }
+
+  return ENV_CATEGORY_ORDER.map((key) => ({
+    key,
+    tabLabel: ENV_CATEGORY_LABELS[key] || key,
+    tags: bucket[key].sort(
+      (a, b) => a.sort - b.sort || a.label.localeCompare(b.label, 'zh-CN')
+    )
+  }))
+}
+
 module.exports = {
   _before() {
     // Hook point: admin role check can be added here in STEP 6
@@ -156,5 +186,51 @@ module.exports = {
     if (!res.data.length) _err(-1001, '版本不存在')
 
     return { code: 0, msg: 'success', data: res.data[0] }
+  },
+
+  /**
+   * 删除指定规则版本（不可删除当前激活版本）
+   * @param {string} id - 版本文档ID（必填）
+   */
+  async deleteVersion({ id } = {}) {
+    if (!id) _err(-1000, '参数错误：缺少 id')
+
+    const target = await col.doc(id).get()
+    if (!target.data.length) _err(-1001, '版本不存在')
+    if (target.data[0].is_active) _err(-1002, '当前使用中的版本不可删除')
+
+    await col.doc(id).remove()
+    return { code: 0, msg: 'success' }
+  },
+
+  /**
+   * 获取当前激活版本的生活环境标签（供填写资料页动态渲染）
+   */
+  async getActiveEnvTags() {
+    const res = await col.where({ is_active: true }).limit(1).get()
+    if (!res.data.length) {
+      return {
+        code: 0,
+        msg: 'success',
+        data: {
+          version_id: '',
+          version: '',
+          groups: buildEnvTagGroups([])
+        }
+      }
+    }
+
+    const doc = res.data[0]
+    const envItems = doc.rules?.env_items ?? []
+
+    return {
+      code: 0,
+      msg: 'success',
+      data: {
+        version_id: doc._id,
+        version: doc.version || '',
+        groups: buildEnvTagGroups(envItems)
+      }
+    }
   }
 }

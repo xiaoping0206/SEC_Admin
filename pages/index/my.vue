@@ -1,85 +1,123 @@
 <template>
-  <view class="root">
-    <!-- 区块1：导航栏 -->
-    <view class="nav" :style="{ paddingTop: statusBarPx + 'px', height: navContentPx + 'px' }">
-      <text class="nav__ttl">MY</text>
-    </view>
-
-    <scroll-view
-      scroll-y
-      class="sv"
-      :style="{ height: scrollHeightPx + 'px', marginTop: navOuterPx + 'px' }"
-      :show-scrollbar="false"
-    >
+  <view class="page">
+    <scroll-view scroll-y class="scroll" :show-scrollbar="false">
       <view class="canvas">
-        <!-- 区块2：账户信息卡片 -->
-        <view class="card">
-          <view class="card-content">
-            <view class="card-ava">
-              <image class="card-ava__img" :src="avatarDisplay" mode="aspectFill" />
-            </view>
+        <!-- Figma 3588:9333 — My! LOGO @ 8,40 186×64 -->
+        <image
+          class="logo"
+          src="/static/figma/my/logo_my.png"
+          mode="aspectFit"
+        />
 
-            <view class="card-col">
-              <text class="card-name">{{ institutionName }}</text>
-              <text v-if="accountSubtitle" class="card-sub">{{ accountSubtitle }}</text>
-              <view class="card-tags">
-                <view v-for="(t, idx) in tagsListLimited" :key="t.id ?? idx" class="card-pill">
-                  <text class="card-pill__txt">{{ t.label }}</text>
-                </view>
-              </view>
-              <text class="card-id">ID：{{ organizationId }}</text>
-            </view>
-
-            <view class="edit" @tap="goAccount">
-              <view class="edit__blue">
-                <u-icon name="edit-pen" color="#FFFFFF" size="26" />
-              </view>
+        <!-- Figma 3588:9337 — 资料卡 Subtract 渐变底 -->
+        <view class="profile">
+          <image
+            class="profile__bg"
+            src="/static/figma/my/card_subtract.png"
+            mode="scaleToFill"
+          />
+          <image
+            class="profile__avatar"
+            :src="avatarDisplay"
+            mode="aspectFill"
+          />
+          <view class="profile__edit" @tap="goAccount">
+            <text class="profile__edit-tx ff-yuan">编辑</text>
+          </view>
+          <text class="profile__name ff-yuan">{{ institutionName }}</text>
+          <text class="profile__id ff-pop">ID：{{ organizationId }}</text>
+          <view class="profile__tags">
+            <view
+              v-for="(t, idx) in tagsListLimited"
+              :key="t.id ?? idx"
+              class="profile__pill"
+            >
+              <text class="profile__pill-tx ff-yuan">{{ t.label }}</text>
             </view>
           </view>
         </view>
 
-        <!-- 区块3：分割线 -->
-        <view class="sep" />
+        <!-- Figma 3588:9365 — 周报推送 -->
+        <view v-if="showWeekly" class="weekly" @tap="goWeekly">
+          <view class="weekly__card">
+            <image
+              class="weekly__illus"
+              src="/static/figma/my/weekly_card_illus.png"
+              mode="scaleToFill"
+            />
+            <text class="weekly__tit ff-my">周报推送</text>
+            <text class="weekly__sub ff-pop">{{ weeklyPeriodLabel }}</text>
+            <view class="weekly__close" @tap.stop="dismissWeekly">
+              <text class="weekly__close-tx">×</text>
+            </view>
+          </view>
+        </view>
 
-        <!-- 区块4：档案管理 -->
-        <view class="row row--files" @tap="goFiles" />
-        <view class="ico ico--files">
-          <u-icon name="list" color="#FFFFFF" size="26" />
-        </view>
-        <text class="cap cap--files">档案管理</text>
-        <view class="arr arr--files">
-          <u-icon name="arrow-right" color="#BFBFBF" size="20" />
+        <!-- Figma 3588:9354 — 分割线 -->
+        <view v-if="showWeekly" class="divider" />
+
+        <!-- Figma 3588:9355 — 档案管理 -->
+        <view
+          class="menu menu--files"
+          :style="{ top: menuFilesTop }"
+          @tap="goFiles"
+        >
+          <image
+            class="menu__ico"
+            src="/static/figma/my/ic_menu_files.png"
+            mode="aspectFit"
+          />
+          <text class="menu__tx ff-yuan">档案管理</text>
+          <view class="menu__arr" aria-hidden="true">
+            <view class="menu__chev" />
+          </view>
         </view>
 
-        <!-- 区块5：设置 -->
-        <view class="row row--set" @tap="goSettings" />
-        <view class="ico ico--set">
-          <u-icon name="setting" color="#FFFFFF" size="26" />
-        </view>
-        <text class="cap cap--set">设置</text>
-        <view class="arr arr--set">
-          <u-icon name="arrow-right" color="#BFBFBF" size="20" />
+        <!-- Figma 3588:9360 — 设置 -->
+        <view
+          class="menu menu--set"
+          :style="{ top: menuSetTop }"
+          @tap="goSettings"
+        >
+          <image
+            class="menu__ico"
+            src="/static/figma/my/ic_menu_settings.png"
+            mode="aspectFit"
+          />
+          <text class="menu__tx ff-yuan">设置</text>
+          <view class="menu__arr" aria-hidden="true">
+            <view class="menu__chev" />
+          </view>
         </view>
       </view>
     </scroll-view>
 
-    <!-- 区块6：底部 Tab -->
-    <view class="tb">
-      <view class="tb__it" @tap="goTab('/pages/matching/index')">
-        <image class="tb__pic" src="/static/images/tab/match.png" mode="aspectFit" />
-        <text class="tb__lbl">匹配</text>
-      </view>
-      <view class="tb__it" @tap="goTab('/pages/message/index')">
-        <image class="tb__pic" src="/static/images/tab/message.png" mode="aspectFit" />
-        <text class="tb__lbl">消息</text>
-      </view>
-      <view class="tb__it tb__it--on" @tap="goTab('/pages/index/my')">
+    <!-- Figma 3588:9353 — 底栏 335×65 @ 20,721 -->
+    <view class="tabbar">
+      <view class="tabbar__bg" />
+      <view class="tabbar__it tabbar__it--match" @tap="goTab('matching')">
         <image
-          class="tb__pic tb__pic--on"
-          src="/static/images/tab/my-active.png"
+          class="tabbar__ico tabbar__ico--match"
+          src="/static/figma/my/tb_match.png"
           mode="aspectFit"
         />
-        <text class="tb__lbl tb__lbl--on">我的</text>
+        <text class="tabbar__tx ff-yuan">匹配</text>
+      </view>
+      <view class="tabbar__it tabbar__it--msg" @tap="goTab('message')">
+        <image
+          class="tabbar__ico tabbar__ico--msg"
+          src="/static/figma/my/tb_message.png"
+          mode="aspectFit"
+        />
+        <text class="tabbar__tx ff-yuan">消息</text>
+      </view>
+      <view class="tabbar__it tabbar__it--my">
+        <image
+          class="tabbar__ico tabbar__ico--my"
+          src="/static/figma/my/tb_my_active.png"
+          mode="aspectFit"
+        />
+        <text class="tabbar__tx tabbar__tx--on ff-yuan">我的</text>
       </view>
     </view>
   </view>
@@ -90,46 +128,63 @@ import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/store/user'
 
-const AVATAR_FALLBACK = '/static/images/default-avatar.png'
-
-const statusBarPx = ref(20)
-const scrollHeightPx = ref(500)
-const navContentPx = ref(88)
-const navOuterPx = ref(108)
+const AVATAR_FALLBACK = '/static/figma/my/avatar_ellipse19.png'
+const AVATAR_GRAY_PLACEHOLDER = '/static/images/avatar-mine-placeholder.png'
 
 const userStore = useUserStore()
+const { avatar, institutionName, organizationId, tags } = storeToRefs(userStore)
 
-const {
-  avatar,
-  institutionName,
-  accountSubtitle,
-  organizationId,
-  tags
-} = storeToRefs(userStore)
+const showWeekly = ref(true)
+const weeklyPeriodLabel = ref('最新：2026.4.-2026.4')
 
-const tagsList = computed(() =>
-  Array.isArray(tags.value) ? tags.value : []
-)
-
+const tagsList = computed(() => (Array.isArray(tags.value) ? tags.value : []))
 const tagsListLimited = computed(() => tagsList.value.slice(0, 2))
 
-const avatarDisplay = computed(
-  () => (avatar.value && String(avatar.value).length > 0 ? avatar.value : AVATAR_FALLBACK)
-)
+const avatarDisplay = computed(() => {
+  const src =
+    avatar.value && String(avatar.value).length > 0 ? avatar.value : AVATAR_FALLBACK
+  if (
+    src === AVATAR_GRAY_PLACEHOLDER ||
+    src.endsWith('avatar-mine-placeholder.png') ||
+    src.endsWith('default-avatar.png')
+  ) {
+    return AVATAR_FALLBACK
+  }
+  return src
+})
 
-function layoutSizes() {
-  const s = uni.getSystemInfoSync()
-  statusBarPx.value = s.statusBarHeight || 20
-  navContentPx.value = uni.upx2px(176)
-  navOuterPx.value = statusBarPx.value + navContentPx.value
-  const bot = uni.upx2px(126)
-  scrollHeightPx.value = s.windowHeight - navOuterPx.value - bot
+const menuFilesTop = computed(() => (showWeekly.value ? '934rpx' : '682rpx'))
+const menuSetTop = computed(() => (showWeekly.value ? '1058rpx' : '806rpx'))
+
+const tabPaths = {
+  matching: '/pages/matching/index',
+  message: '/pages/message/index',
+  my: '/pages/index/my'
 }
 
 onMounted(async () => {
-  layoutSizes()
   await userStore.init()
+  await fetchWeeklyReport()
 })
+
+async function fetchWeeklyReport() {
+  try {
+    const res = await uniCloud.callFunction({
+      name: 'weekly-report',
+      data: { action: 'getLatest' }
+    })
+    const payload = res?.result?.data
+    if (payload?.periodLabel) {
+      weeklyPeriodLabel.value = `最新：${payload.periodLabel}`
+    }
+  } catch {
+    /* 云函数未部署时使用 Figma 占位文案 */
+  }
+}
+
+function dismissWeekly() {
+  showWeekly.value = false
+}
 
 function goAccount() {
   uni.navigateTo({ url: '/pages/my/account' })
@@ -143,291 +198,363 @@ function goSettings() {
   uni.navigateTo({ url: '/pages/my/settings' })
 }
 
-function goTab(url) {
-  uni.reLaunch({ url })
+function goWeekly() {
+  uni.navigateTo({ url: '/pages/message/weekly-report' })
+}
+
+function goTab(key) {
+  if (key === 'my') return
+  uni.reLaunch({ url: tabPaths[key] })
 }
 </script>
 
 <style lang="scss" scoped>
-.root {
+@import '@/styles/variables.scss';
+
+/* Figma 3588:9333 — 375×812 基准，1px = 2rpx */
+.page {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #f0e8fb;
   box-sizing: border-box;
 }
 
-/* 基准 812×375：坐标 ×2 = rpx，转 px 时用 upx2px */
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
+.scroll {
   width: 750rpx;
-  z-index: 100;
-  background: #ffffff;
-  box-sizing: content-box;
-}
-
-.nav__ttl {
-  position: absolute;
-  left: 60rpx;
-  top: 90rpx;
-  font-size: 64rpx;
-  font-weight: 700;
-  color: #383838;
-  line-height: 1;
-}
-
-.sv {
-  width: 750rpx;
+  height: 100vh;
   box-sizing: border-box;
 }
 
 .canvas {
   position: relative;
   width: 750rpx;
-  height: 1624rpx;
-  padding-bottom: 126rpx;
+  min-height: 1624rpx;
+  padding-bottom: calc(130rpx + 28rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
-.card {
+.logo {
+  position: absolute;
+  left: 16rpx;
+  top: 80rpx;
+  width: 372rpx;
+  height: 128rpx;
+  z-index: 2;
+}
+
+/* 3588:9337 资料卡 */
+.profile {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 750rpx;
+  height: 660rpx;
+}
+
+.profile__bg {
   position: absolute;
   left: 40rpx;
-  top: 200rpx;
+  top: 236rpx;
   width: 670rpx;
-  min-height: 422rpx;
-  background: #efefef;
-  border-radius: 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  height: 424rpx;
+  z-index: 1;
 }
 
-.card-content {
-  position: relative;
-  width: 670rpx;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding: 40rpx;
-  gap: 24rpx;
-}
-
-.card-ava {
+.profile__avatar {
+  position: absolute;
+  left: 152rpx;
+  top: 218rpx;
   width: 152rpx;
   height: 152rpx;
   border-radius: 76rpx;
-  background: #e8e8e8;
-  overflow: hidden;
-  flex-shrink: 0;
+  border: 4rpx solid #ffffff;
+  box-sizing: border-box;
+  z-index: 4;
 }
 
-.card-ava__img {
-  width: 152rpx;
-  height: 152rpx;
-}
-
-.card-col {
-  flex: 1;
-  min-width: 0;
-  padding-right: 112rpx;
+.profile__edit {
+  position: absolute;
+  left: 558rpx;
+  top: 288rpx;
+  width: 104rpx;
+  height: 44rpx;
+  border-radius: 80rpx;
+  border: 1.2rpx solid #ffffff;
+  background: rgba(255, 255, 255, 0.28);
   display: flex;
-  flex-direction: column;
-  gap: 8rpx;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
 }
 
-.card-name {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #1a1a2e;
+.profile__edit-tx {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.profile__name {
+  position: absolute;
+  left: 168rpx;
+  top: 406rpx;
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.2;
+  max-width: 520rpx;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  z-index: 4;
 }
 
-.card-sub {
-  font-size: 28rpx;
-  color: #666666;
+.profile__id {
+  position: absolute;
+  left: 168rpx;
+  top: 478rpx;
+  font-size: 30rpx;
+  font-weight: 400;
+  color: #dec5ff;
+  line-height: 1.2;
+  z-index: 4;
 }
 
-.card-tags {
+.profile__tags {
+  position: absolute;
+  left: 168rpx;
+  top: 532rpx;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 8rpx;
   align-items: center;
+  gap: 16rpx;
+  z-index: 4;
 }
 
-.card-pill {
-  border-width: 1rpx;
-  border-style: solid;
-  border-color: #4a90e2;
-  border-radius: 28rpx;
-  padding: 8rpx 24rpx;
+.profile__pill {
+  height: 56rpx;
+  border-radius: 40rpx;
+  background: rgba(249, 248, 250, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   box-sizing: border-box;
 }
 
-.card-pill__txt {
+.profile__pill-tx {
   font-size: 24rpx;
-  color: #4a90e2;
+  font-weight: 500;
+  color: #9245f9;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.card-id {
-  font-size: 24rpx;
-  color: #999999;
-}
-
-.edit {
-  position: absolute;
-  right: 40rpx;
-  top: 40rpx;
-  width: 96rpx;
-  height: 96rpx;
-}
-
-.edit__blue {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 16rpx;
-  background: #4a90e2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sep {
-  position: absolute;
-  left: 310rpx;
-  top: 682rpx;
-  width: 128rpx;
-  height: 2rpx;
-  background: #e8e8e8;
-}
-
-.row {
+/* 3588:9365 周报推送 — 3588:9367 白底 + 3588:9366 配图 */
+.weekly {
   position: absolute;
   left: 40rpx;
+  top: 682rpx;
   width: 670rpx;
-  height: 100rpx;
-  background: #ffffff;
+  height: 180rpx;
+  z-index: 2;
+}
+
+.weekly__card {
+  position: relative;
+  width: 670rpx;
+  height: 180rpx;
   border-radius: 32rpx;
+  background: #ffffff;
+  overflow: hidden;
 }
 
-.row--files {
-  top: 710rpx;
-}
-
-.row--set {
-  top: 834rpx;
-}
-
-.ico {
+.weekly__illus {
   position: absolute;
-  width: 52rpx;
-  height: 52rpx;
-  border-radius: 12rpx;
-  background: #4a90e2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  left: 0;
+  top: 0;
+  width: 670rpx;
+  height: 180rpx;
+  z-index: 0;
 }
 
-.ico--files {
-  left: 76rpx;
-  top: 724rpx;
-}
-
-.ico--set {
-  left: 76rpx;
-  top: 848rpx;
-}
-
-.cap {
+.weekly__tit {
   position: absolute;
-  font-size: 34rpx;
-  color: #1a1a2e;
+  left: 44rpx;
+  top: 40rpx;
+  font-size: 48rpx;
+  font-weight: 400;
+  color: #31233a;
+  line-height: 1;
+  z-index: 1;
 }
 
-.cap--files {
-  left: 140rpx;
-  top: 736rpx;
-}
-
-.cap--set {
-  left: 140rpx;
-  top: 860rpx;
-}
-
-.arr {
+.weekly__sub {
   position: absolute;
+  left: 44rpx;
+  top: 108rpx;
+  font-size: 28rpx;
+  font-weight: 400;
+  color: #31233a;
+  line-height: 1;
+  z-index: 1;
+}
+
+.weekly__close {
+  position: absolute;
+  right: 12rpx;
+  top: 16rpx;
   width: 40rpx;
   height: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
 }
 
-.arr--files {
-  left: 662rpx;
-  top: 740rpx;
-}
-
-.arr--set {
-  left: 662rpx;
-  top: 864rpx;
-}
-
-.tb {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 750rpx;
-  height: 126rpx;
-  background: #ffffff;
-  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.06);
-  z-index: 100;
-}
-
-.tb__it {
-  position: absolute;
-  top: 0;
-  width: 250rpx;
-  height: 126rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-.tb__it:nth-child(1) {
-  left: 0;
-}
-
-.tb__it:nth-child(2) {
-  left: 250rpx;
-}
-
-.tb__it:nth-child(3) {
-  left: 500rpx;
-}
-
-.tb__pic {
-  width: 80rpx;
-  height: 80rpx;
-}
-
-.tb__pic--on {
-  border-radius: 20rpx;
-}
-
-.tb__lbl {
-  margin-top: 8rpx;
-  font-size: 20rpx;
-  color: #666666;
+.weekly__close-tx {
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #999999;
   line-height: 1;
 }
 
-.tb__lbl--on {
-  color: #4a90e2;
+.divider {
+  position: absolute;
+  left: 310rpx;
+  top: 898rpx;
+  width: 128rpx;
+  height: 2rpx;
+  background: #e8e8e8;
+}
+
+/* 3588:9355 / 3588:9360 菜单行 */
+.menu {
+  position: absolute;
+  left: 40rpx;
+  width: 670rpx;
+  height: 100rpx;
+  border-radius: 80rpx;
+  background: #ffffff;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 36rpx;
+  box-sizing: border-box;
+}
+
+.menu__ico {
+  width: 52rpx;
+  height: 52rpx;
+  flex-shrink: 0;
+}
+
+.menu__tx {
+  flex: 1;
+  margin-left: 12rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #31233a;
+  line-height: 1.2;
+}
+
+.menu__arr {
+  width: 44rpx;
+  height: 44rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu__chev {
+  width: 14rpx;
+  height: 14rpx;
+  border-top: 3rpx solid #ddc7f9;
+  border-right: 3rpx solid #ddc7f9;
+  transform: rotate(45deg);
+  box-sizing: border-box;
+}
+
+/* 3588:9353 底栏 */
+.tabbar {
+  position: fixed;
+  left: 40rpx;
+  width: 670rpx;
+  height: 130rpx;
+  bottom: calc(28rpx + env(safe-area-inset-bottom));
+  z-index: 900;
+}
+
+.tabbar__bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30rpx;
+  bottom: 0;
+  border-radius: 100rpx;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8rpx 28rpx 2rpx #d4b4ff;
+}
+
+.tabbar__it {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.tabbar__it--match {
+  left: 72rpx;
+  top: 4rpx;
+  width: 80rpx;
+}
+
+.tabbar__it--msg {
+  left: 294rpx;
+  top: 0;
+  width: 94rpx;
+}
+
+.tabbar__it--my {
+  left: 518rpx;
+  top: 6rpx;
+  width: 78rpx;
+}
+
+.tabbar__ico {
+  display: block;
+}
+
+.tabbar__ico--match {
+  width: 80rpx;
+  height: 72rpx;
+}
+
+.tabbar__ico--msg {
+  width: 94rpx;
+  height: 94rpx;
+  margin-top: -12rpx;
+}
+
+.tabbar__ico--my {
+  width: 78rpx;
+  height: 78rpx;
+}
+
+.tabbar__tx {
+  margin-top: 4rpx;
+  font-size: 20rpx;
   font-weight: 600;
+  line-height: normal;
+  color: #695d71;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tabbar__tx--on {
+  color: #31233a;
 }
 </style>

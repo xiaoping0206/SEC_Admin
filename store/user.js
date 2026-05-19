@@ -10,7 +10,7 @@ function normalizeTagsPayload(list) {
   return list.map((t, i) => {
     const label = String(t?.label ?? '').trim()
     if (!label) return { id: `tag-empty-${i}`, label: '—' }
-    if (/民办/.test(label)) return { id: 'tag-minban', label }
+    if (/民办|非营利/.test(label)) return { id: 'tag-org', label: /非营利/.test(label) ? label : '非营利性养老机构' }
     if (/普惠/.test(label)) return { id: 'tag-puhui', label }
     return { id: `tag-${i}`, label }
   })
@@ -19,15 +19,15 @@ function normalizeTagsPayload(list) {
 export const useUserStore = defineStore('user', () => {
   const userInfo = ref(null)
   const token = ref('')
-  /** Figma 1373 灰阶头像占位（勿与旧 logo 占位混用文件名，否则可能被缓存成绿 U） */
-  const avatar = ref('/static/images/avatar-mine-placeholder.png')
-  const institutionName = ref('晨光普惠服务中心')
+  /** Figma 3588:9352 Ellipse 19 彩色默认头像 */
+  const avatar = ref('/static/figma/my/avatar_ellipse19.png')
+  const institutionName = ref('机构账号')
   const accountSubtitle = ref('管理员 · SECare Admin')
   const tags = ref([
     { id: 'tag-puhui', label: '普惠' },
-    { id: 'tag-minban', label: '民办性企业' }
+    { id: 'tag-org', label: '非营利性养老机构' }
   ])
-  const accountTypeDisplay = ref('普惠 / 民办性企业')
+  const accountTypeDisplay = ref('普惠 / 非营利性养老机构')
   /** 机构侧展示用账号/工号，与 Figma「ID：」行对应 */
   const organizationId = ref('J26040001')
   const mobile = ref('13800138000')
@@ -54,11 +54,11 @@ export const useUserStore = defineStore('user', () => {
     const cached = uni.getStorageSync(PROFILE_STORAGE)
     if (!cached || typeof cached !== 'object') return
     if (cached.avatar) {
-      if (cached.avatar === '/static/images/default-avatar.png') {
-        avatar.value = '/static/images/avatar-mine-placeholder.png'
-      } else {
-        avatar.value = cached.avatar
-      }
+      const gray =
+        cached.avatar === '/static/images/default-avatar.png' ||
+        cached.avatar === '/static/images/avatar-mine-placeholder.png' ||
+        String(cached.avatar).includes('avatar-mine-placeholder')
+      avatar.value = gray ? '/static/figma/my/avatar_ellipse19.png' : cached.avatar
     }
     if (cached.institutionName) institutionName.value = cached.institutionName
     if (cached.accountSubtitle) accountSubtitle.value = cached.accountSubtitle

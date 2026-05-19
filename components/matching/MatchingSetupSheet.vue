@@ -17,7 +17,7 @@
         </text>
         <image
           class="sheet__chev"
-          src="/static/figma/my/ic_chevron_right.svg"
+          src="/static/figma/matching/ic_sheet_chevron.svg"
           mode="aspectFit"
         />
       </view>
@@ -29,7 +29,7 @@
           </text>
           <image
             class="sheet__chev"
-            src="/static/figma/my/ic_chevron_right.svg"
+            src="/static/figma/matching/ic_sheet_chevron.svg"
             mode="aspectFit"
           />
         </view>
@@ -39,7 +39,7 @@
         :class="{ 'sheet__btn--single': isSingle }"
         @tap="submit"
       >
-        <text class="sheet__btn-txt">开始匹配</text>
+        <text class="sheet__btn-txt ff-yuan">开始匹配</text>
       </view>
     </view>
   </view>
@@ -49,6 +49,7 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMatchingStore } from '@/store/matching'
+import { fetchActiveGivers, fetchActiveTakers } from '@/utils/matching-select.js'
 
 const props = defineProps({
   /** multi → Figma 3588:6766；single → Figma 3588:6779 */
@@ -70,16 +71,31 @@ const giverName = computed(() =>
   selectedGiver.value?.name ? String(selectedGiver.value.name).trim() : ''
 )
 
-function goSelectTaker() {
-  matchingStore.setMatchMode(isSingle.value ? 'single' : 'multi')
-  uni.navigateTo({
-    url: `/pages/matching/select-taker?mode=${isSingle.value ? 'single' : 'multi'}`
-  })
+async function goSelectTaker() {
+  const mode = isSingle.value ? 'single' : 'multi'
+  matchingStore.setMatchMode(mode)
+  try {
+    const rows = await fetchActiveTakers()
+    const empty = !rows.length
+    uni.navigateTo({
+      url: `/pages/matching/select-taker?mode=${mode}${empty ? '&state=empty' : ''}`
+    })
+  } catch {
+    uni.showToast({ title: '加载老人列表失败', icon: 'none' })
+  }
 }
 
-function goSelectGiver() {
+async function goSelectGiver() {
   matchingStore.setMatchMode('single')
-  uni.navigateTo({ url: '/pages/matching/select-giver' })
+  try {
+    const rows = await fetchActiveGivers()
+    const empty = !rows.length
+    uni.navigateTo({
+      url: `/pages/matching/select-giver${empty ? '?state=empty' : ''}`
+    })
+  } catch {
+    uni.showToast({ title: '加载护工列表失败', icon: 'none' })
+  }
 }
 
 function submit() {
@@ -236,7 +252,7 @@ $match-purple: #9245f9;
 
 .sheet__btn-txt {
   font-size: 32rpx;
-  font-weight: 400;
+  font-weight: 600;
   line-height: normal;
   color: #ffffff;
   text-align: center;

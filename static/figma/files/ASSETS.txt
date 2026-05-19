@@ -1,0 +1,5 @@
+empty_state.png      — 空状态插图（3588:9164）178×178rpx
+avatar_sample_1.png  — 列表头像示例 1（3588:9195）
+avatar_sample_2.png  — 列表头像示例 2（3588:9200）
+avatar_sample_3.png  — 列表头像示例 3（3588:9205）
+profile_avatar_sample.png — 个人档案页头像示例（3588:8711）

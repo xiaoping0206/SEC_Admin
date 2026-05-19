@@ -1,87 +1,85 @@
 <template>
-  <u-popup
-    :show="shown"
-    mode="bottom"
-    round="24rpx"
-    :safe-area-inset-bottom="true"
-    @close="emit('close')"
-  >
-    <view class="popup">
-      <view class="popup__hdr">
-        <text class="popup__tit">设置生日</text>
-        <text class="popup__close" @tap="emit('close')">×</text>
-      </view>
+  <view v-if="shown" class="mask" @tap="emit('close')">
+    <view class="sheet" @tap.stop>
+      <text class="sheet__title ff-yuan">设置生日</text>
+      <view class="sheet__divider" />
 
-      <view class="tabs">
-        <text
-          class="tabs__cell"
-          :class="{ 'tabs__cell--on': calIdx === 0 }"
+      <view class="sheet__tabs">
+        <view
+          class="sheet__tab"
+          :class="{ 'sheet__tab--on': calIdx === 0 }"
           @tap="switchCal(0)"
         >
-          阳历
-        </text>
-        <text
-          class="tabs__cell"
-          :class="{ 'tabs__cell--on': calIdx === 1 }"
+          <text class="sheet__tab-tx ff-yuan">阳历</text>
+        </view>
+        <view
+          class="sheet__tab"
+          :class="{ 'sheet__tab--on': calIdx === 1 }"
           @tap="switchCal(1)"
         >
-          农历
-        </text>
+          <text class="sheet__tab-tx ff-yuan">农历</text>
+        </view>
       </view>
 
-      <picker-view
-        v-if="calIdx === 0"
-        class="pv"
-        :value="solarPvValue"
-        indicator-style="height: 44px"
-        @change="onSolarPv"
-      >
-        <picker-view-column>
-          <view v-for="(y, i) in solarYearList" :key="'sy-' + i" class="pv__row">
-            <text class="pv__txt">{{ y }}年</text>
-          </view>
-        </picker-view-column>
-        <picker-view-column>
-          <view v-for="m in monthNums12" :key="'sm-' + m" class="pv__row">
-            <text class="pv__txt">{{ m }}月</text>
-          </view>
-        </picker-view-column>
-        <picker-view-column>
-          <view v-for="d in solarDayNums" :key="'sd-' + d" class="pv__row">
-            <text class="pv__txt">{{ d }}日</text>
-          </view>
-        </picker-view-column>
-      </picker-view>
+      <view class="sheet__picker-wrap">
+        <view class="sheet__shade sheet__shade--top" />
+        <view class="sheet__shade sheet__shade--bottom" />
+        <view class="sheet__indicator" />
 
-      <picker-view
-        v-else
-        class="pv"
-        :value="lunarPvValue"
-        indicator-style="height: 44px"
-        @change="onLunarPv"
-      >
-        <picker-view-column>
-          <view v-for="(y, i) in lunarYearList" :key="'ly-' + i" class="pv__row">
-            <text class="pv__txt">{{ y }}年</text>
-          </view>
-        </picker-view-column>
-        <picker-view-column>
-          <view v-for="(row, j) in lunarMonthRows" :key="'lm-' + j" class="pv__row">
-            <text class="pv__txt">{{ row.label }}</text>
-          </view>
-        </picker-view-column>
-        <picker-view-column>
-          <view v-for="(lab, k) in lunarDayLabelsCol" :key="'ld-' + k" class="pv__row">
-            <text class="pv__txt">{{ lab }}</text>
-          </view>
-        </picker-view-column>
-      </picker-view>
+        <picker-view
+          v-if="calIdx === 0"
+          class="sheet__pv"
+          :value="solarPvValue"
+          indicator-style="height: 120rpx"
+          @change="onSolarPv"
+        >
+          <picker-view-column>
+            <view v-for="(y, i) in solarYearList" :key="'sy-' + i" class="sheet__pv-row">
+              <text class="sheet__pv-tx ff-yuan">{{ y }}年</text>
+            </view>
+          </picker-view-column>
+          <picker-view-column>
+            <view v-for="m in monthNums12" :key="'sm-' + m" class="sheet__pv-row">
+              <text class="sheet__pv-tx ff-yuan">{{ m }}月</text>
+            </view>
+          </picker-view-column>
+          <picker-view-column>
+            <view v-for="d in solarDayNums" :key="'sd-' + d" class="sheet__pv-row">
+              <text class="sheet__pv-tx ff-yuan">{{ d }}日</text>
+            </view>
+          </picker-view-column>
+        </picker-view>
 
-      <view class="popup__foot">
-        <button class="btn-ok" @tap="onConfirm">确定</button>
+        <picker-view
+          v-else
+          class="sheet__pv"
+          :value="lunarPvValue"
+          indicator-style="height: 120rpx"
+          @change="onLunarPv"
+        >
+          <picker-view-column>
+            <view v-for="(y, i) in lunarYearList" :key="'ly-' + i" class="sheet__pv-row">
+              <text class="sheet__pv-tx ff-yuan">{{ y }}年</text>
+            </view>
+          </picker-view-column>
+          <picker-view-column>
+            <view v-for="(row, j) in lunarMonthRows" :key="'lm-' + j" class="sheet__pv-row">
+              <text class="sheet__pv-tx ff-yuan">{{ row.label }}</text>
+            </view>
+          </picker-view-column>
+          <picker-view-column>
+            <view v-for="(lab, k) in lunarDayLabelsCol" :key="'ld-' + k" class="sheet__pv-row">
+              <text class="sheet__pv-tx ff-yuan">{{ lab }}</text>
+            </view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+
+      <view class="sheet__btn" @tap="onConfirm">
+        <text class="sheet__btn-tx ff-yuan">确定</text>
       </view>
     </view>
-  </u-popup>
+  </view>
 </template>
 
 <script setup>
@@ -103,7 +101,6 @@ const props = defineProps({
   shown: { type: Boolean, default: false },
   /** @type {'taker'|'giver'} */
   wizardKind: { type: String, default: 'taker' },
-  /** 已有档案：用于回填 */
   initialBirthday: { type: Object, default: null }
 })
 
@@ -131,7 +128,7 @@ function defaultIndices() {
   const midY = Math.floor((minYear + maxYear) / 2)
   solarIy.value = midY - minYear
   solarIm.value = 5
-  solarId.value = 14
+  solarId.value = 3
 }
 
 function applyFromStored(b) {
@@ -168,7 +165,9 @@ function applyFromStored(b) {
   }
 
   calIdx.value = b.type === 'lunar' ? 1 : 0
-  if (y != null && m != null && d != null && calIdx.value === 1) syncLunarPickFromSolarNumbers(y, m, d)
+  if (y != null && m != null && d != null && calIdx.value === 1) {
+    syncLunarPickFromSolarNumbers(y, m, d)
+  }
 }
 
 watch(
@@ -335,84 +334,158 @@ function onConfirm() {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
+$match-purple: #9245f9;
+$match-purple-light: #c766ff;
 
-.popup {
-  padding: 24rpx 24rpx 32rpx;
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+/* Figma 3588:8048 设置生日 */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 760rpx;
+  background: #ffffff;
+  border-radius: 32rpx 32rpx 0 0;
+  box-sizing: border-box;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.sheet__title {
+  display: block;
+  padding-top: 40rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #31233a;
+  text-align: center;
+  line-height: normal;
+}
+
+.sheet__divider {
+  height: 1rpx;
+  margin-top: 32rpx;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.sheet__tabs {
+  display: flex;
+  flex-direction: row;
+  gap: 24rpx;
+  padding: 24rpx 44rpx 0;
   box-sizing: border-box;
 }
 
-.popup__hdr {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16rpx;
-}
-
-.popup__tit {
-  font-size: $font-size-lg;
-  color: $color-text-primary;
-  font-weight: 600;
-}
-
-.popup__close {
-  font-size: 48rpx;
-  color: $color-text-secondary;
-  line-height: 1;
-}
-
-.tabs {
-  display: flex;
-  flex-direction: row;
-  border-bottom: 1rpx solid $color-border;
-  margin-bottom: 12rpx;
-}
-
-.tabs__cell {
+.sheet__tab {
   flex: 1;
-  text-align: center;
-  padding: 16rpx 0;
-  font-size: $font-size-base;
-  color: $color-text-secondary;
-}
-
-.tabs__cell--on {
-  color: #4a90e2;
-  border-bottom: 4rpx solid #4a90e2;
-}
-
-.pv {
-  height: 420rpx;
-  width: 100%;
-}
-
-.pv__row {
+  height: 72rpx;
+  border-radius: 100rpx;
+  background: #f6eeff;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
+  box-sizing: border-box;
+  border: 2rpx solid transparent;
 }
 
-.pv__txt {
-  font-size: $font-size-base;
-  color: $color-text-primary;
+.sheet__tab--on {
+  background: #ffffff;
+  border-color: $match-purple;
 }
 
-.popup__foot {
-  margin-top: 16rpx;
+.sheet__tab-tx {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #8d7a99;
+  line-height: normal;
 }
 
-.btn-ok {
-  height: 88rpx;
-  line-height: 88rpx;
-  border-radius: 44rpx;
-  background: #4a90e2;
+.sheet__tab--on .sheet__tab-tx {
+  font-weight: 700;
+  color: $match-purple;
+}
+
+.sheet__picker-wrap {
+  position: relative;
+  height: 360rpx;
+  margin-top: 8rpx;
+}
+
+.sheet__pv {
+  height: 360rpx;
+  width: 100%;
+}
+
+.sheet__pv-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120rpx;
+}
+
+.sheet__pv-tx {
+  font-size: 32rpx;
+  font-weight: 400;
+  color: #31233a;
+  line-height: normal;
+}
+
+.sheet__indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 120rpx;
+  pointer-events: none;
+  z-index: 2;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.08);
+}
+
+.sheet__shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120rpx;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.sheet__shade--top {
+  top: 50%;
+  transform: translateY(-180rpx);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.sheet__shade--bottom {
+  top: 50%;
+  transform: translateY(60rpx);
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.sheet__btn {
+  margin: 16rpx 60rpx 0;
+  height: 92rpx;
+  border-radius: 100rpx;
+  background: linear-gradient(47.18deg, $match-purple-light 11.9%, $match-purple 94.02%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet__btn-tx {
+  font-size: 32rpx;
+  font-weight: 700;
   color: #ffffff;
-  font-size: $font-size-base;
-
-  &::after {
-    border: none;
-  }
+  line-height: normal;
 }
 </style>

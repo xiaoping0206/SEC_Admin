@@ -15,5 +15,9 @@ tb_my.png            — 底栏「我的」
 弹层页面（点击卡片跳转）：
   多人 — 遮罩 Figma 3588:7917 + 弹层 3588:6766 → pages/matching/multi.vue
   单人 — 遮罩 Figma 3588:7956 + 弹层 3588:6779 → pages/matching/single.vue
+  老人列表 — Figma 3588:7775（有数据）/ 3588:7706（空）→ pages/matching/select-taker.vue
+  护工列表 — Figma 3588:7883（有数据）/ 3588:7765（空）→ pages/matching/select-giver.vue
+  空状态插图 — Figma 3588:7718，empty_illus.png（89×89）
+  弹层箭头 — Figma 3588:6771，ic_sheet_chevron.svg（22×22 紫色三角）
 
 字体：复用 styles/figma-my-fonts.scss 中 .ff-yuan（Alimama FangYuanTi VF）

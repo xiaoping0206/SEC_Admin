@@ -16,32 +16,39 @@
       <scroll-view scroll-y class="pane">
         <view class="picked">
           <text class="muted"
-            >各类最多选 5 项；可不选。<text style="margin-left:8rpx">{{ pickedCount }}/不限</text></text>
+            >各类最多选 5 项；可不选。<text style="margin-left:8rpx">{{ pickedCount }}/不限</text></text
+          >
         </view>
 
-        <view class="tabs">
-          <text
-            v-for="g in envGroups"
-            :key="'tab-' + g.key"
-            class="tabs__t"
-            :class="{ 'tabs__t--on': envTab === g.key }"
-            @tap="envTab = g.key"
-          >
-            {{ g.tabLabel }}({{ draft[g.key]?.length || 0 }})
-          </text>
-        </view>
+        <view v-if="rulesStore.loading && !rulesStore.loaded" class="muted">正在加载标签...</view>
+        <view v-else-if="rulesStore.loadError" class="muted">{{ rulesStore.loadError }}</view>
+        <view v-else-if="!rulesStore.activeVersionId" class="muted">请先在管理端导入并激活匹配规则</view>
 
-        <view class="tag-grid">
-          <view
-            v-for="tag in currentTags"
-            :key="'tg-' + tag"
-            class="tag-cell"
-            :class="{ 'tag-cell--on': tagOn(tag) }"
-            @tap="toggleTag(tag)"
-          >
-            <text class="tag-cell__txt">{{ tag }}</text>
+        <template v-else>
+          <view class="tabs">
+            <text
+              v-for="g in envGroups"
+              :key="'tab-' + g.key"
+              class="tabs__t"
+              :class="{ 'tabs__t--on': envTab === g.key }"
+              @tap="envTab = g.key"
+            >
+              {{ g.tabLabel }}({{ draft[g.key]?.length || 0 }})
+            </text>
           </view>
-        </view>
+
+          <view class="tag-grid">
+            <view
+              v-for="tag in currentTags"
+              :key="'tg-' + tag.code"
+              class="tag-cell"
+              :class="{ 'tag-cell--on': tagOn(tag.code) }"
+              @tap="toggleTag(tag)"
+            >
+              <text class="tag-cell__txt">{{ tag.label }}</text>
+            </view>
+          </view>
+        </template>
       </scroll-view>
 
       <view class="foot">
@@ -55,7 +62,8 @@
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
-import { ENV_TAG_GROUPS } from '@/utils/archive-wizard-tags.js'
+import { useRulesStore } from '@/store/rules.js'
+import { ENV_CATEGORY_LABELS, normalizeStoredEnvTags } from '@/utils/env-tags.js'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -72,7 +80,8 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'confirm'])
 
-const envGroups = ENV_TAG_GROUPS
+const rulesStore = useRulesStore()
+const envGroups = computed(() => rulesStore.envTagGroups)
 const envTab = ref('hobby')
 
 const draft = reactive({
@@ -84,44 +93,41 @@ const draft = reactive({
 
 watch(
   () => props.visible,
-  (v) => {
-    if (v) {
-      const m = props.value && typeof props.value === 'object' ? props.value : {}
-      draft.hobby = [...(m.hobby || [])]
-      draft.lifestyle = [...(m.lifestyle || [])]
-      draft.personality = [...(m.personality || [])]
-      draft.comm_style = [...(m.comm_style || [])]
-    }
+  async (v) => {
+    if (!v) return
+    await rulesStore.fetchActiveEnvTags()
+    const m = props.value && typeof props.value === 'object' ? props.value : {}
+    const normalized = normalizeStoredEnvTags(m, envGroups.value)
+    draft.hobby = [...(normalized.hobby || [])]
+    draft.lifestyle = [...(normalized.lifestyle || [])]
+    draft.personality = [...(normalized.personality || [])]
+    draft.comm_style = [...(normalized.comm_style || [])]
   }
 )
 
 const pickedCount = computed(() => {
   let n = 0
-  envGroups.forEach((g) => {
+  envGroups.value.forEach((g) => {
     n += (draft[g.key] || []).length
   })
   return n
 })
 
 const currentTags = computed(() => {
-  const g = envGroups.find((x) => x.key === envTab.value)
-  return g ? g.tags : []
+  const g = envGroups.value.find((x) => x.key === envTab.value)
+  return g?.tags ?? []
 })
 
 function getCatName(cat) {
-  const m = {
-    hobby: '兴趣爱好',
-    lifestyle: '生活方式',
-    personality: '性格特征',
-    comm_style: '沟通偏好'
-  }
-  return m[cat] || cat
+  return ENV_CATEGORY_LABELS[cat] || cat
 }
 
-function toggleTag(item) {
+function toggleTag(tag) {
   const key = envTab.value
+  const code = tag?.code
+  if (!code) return
   const arr = draft[key]
-  const idx = arr.indexOf(item)
+  const idx = arr.indexOf(code)
   if (idx !== -1) {
     arr.splice(idx, 1)
     return
@@ -130,11 +136,11 @@ function toggleTag(item) {
     uni.showToast({ title: `${getCatName(key)}最多选5个`, icon: 'none' })
     return
   }
-  arr.push(item)
+  arr.push(code)
 }
 
-function tagOn(tag) {
-  return (draft[envTab.value] || []).includes(tag)
+function tagOn(code) {
+  return (draft[envTab.value] || []).includes(code)
 }
 
 function onConfirm() {

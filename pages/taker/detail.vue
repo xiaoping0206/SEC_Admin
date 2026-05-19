@@ -1,89 +1,96 @@
 <template>
   <view class="page">
-    <u-navbar
-      title="个人信息"
-      :fixed="true"
-      :placeholder="true"
-      :safe-area-inset-top="true"
-      right-text="编辑"
-      bg-color="#ffffff"
-      @click-right="goEdit"
-      :auto-back="true"
-      left-icon="arrow-left"
-    />
+    <view class="nav" :style="{ paddingTop: statusBarPx + 'px' }">
+      <view class="nav__bar" :style="{ height: navBarPx + 'px' }">
+        <view class="nav__back" @tap="goBack">
+          <image
+            class="nav__back-ico"
+            src="/static/figma/matching/select/ic_back.svg"
+            mode="aspectFit"
+          />
+        </view>
+        <text class="nav__ttl ff-yuan">个人档案</text>
+      </view>
+    </view>
 
-    <view v-if="loading" class="state">
-      <text class="muted">加载中…</text>
+    <view v-if="loading" class="state" :style="{ paddingTop: navOuterPx + 'px' }">
+      <text class="state__txt ff-yuan">加载中…</text>
     </view>
 
     <scroll-view
       v-else-if="detail"
       scroll-y
       class="scroll"
-      :style="{ height: scrollH + 'px' }"
+      :style="{ height: scrollH + 'px', paddingTop: navOuterPx + 'px' }"
+      :show-scrollbar="false"
     >
-      <view class="pad">
-        <view class="row">
-          <text class="row__l">姓名</text>
-          <text class="row__v">{{ detail.name || '—' }}</text>
-        </view>
-        <view class="row">
-          <text class="row__l">性别</text>
-          <text class="row__v">{{ genderText }}</text>
-        </view>
-        <view class="row">
-          <text class="row__l">生日</text>
-          <text class="row__v">{{ birthText }}</text>
-        </view>
-        <view class="row">
-          <text class="row__l">五行</text>
-          <text class="row__v">{{ wxText }}</text>
-        </view>
-        <view class="row">
-          <text class="row__l">星座</text>
-          <text class="row__v">{{ constellationText }}</text>
-        </view>
-        <view class="row">
-          <text class="row__l">四象</text>
-          <text class="row__v">{{ sxText }}</text>
-        </view>
-        <view class="row">
-          <text class="row__l">MBTI</text>
-          <text class="row__v">{{ detail.mbti || '—' }}</text>
-        </view>
-        <view class="row">
-          <text class="row__l">慢性病史</text>
-          <text class="row__v">{{ chronicLine }}</text>
+      <view class="body">
+        <view class="hero">
+          <image class="hero__avatar" :src="avatarDisplay" mode="aspectFill" />
+          <view class="hero__main">
+            <text class="hero__name ff-yuan">{{ detail.name || '—' }}</text>
+            <view class="hero__meta">
+              <text class="hero__meta-tx ff-yuan">{{ genderText }}</text>
+              <text class="hero__meta-tx ff-yuan">{{ birthCompact }}</text>
+            </view>
+          </view>
+          <view class="hero__edit" @tap="goEdit">
+            <text class="hero__edit-tx ff-yuan">编辑档案</text>
+          </view>
         </view>
 
-        <text class="field-hint">生活环境标签</text>
-        <view class="chip-wrap">
-          <text v-if="flatTags.length === 0" class="muted">暂无</text>
-          <text v-for="(c, i) in flatTags" :key="'tg-' + i" class="chip">{{ c }}</text>
+        <view class="traits">
+          <view class="traits__col">
+            <text class="traits__val ff-yuan">{{ wxText }}</text>
+            <text class="traits__lab ff-yuan">五行</text>
+          </view>
+          <view class="traits__sep" />
+          <view class="traits__col">
+            <text class="traits__val ff-yuan">{{ constellationText }}</text>
+            <text class="traits__lab ff-yuan">星座</text>
+          </view>
+          <view class="traits__sep" />
+          <view class="traits__col">
+            <text class="traits__val ff-yuan">{{ detail.mbti || '—' }}</text>
+            <text class="traits__lab ff-yuan">MBTI</text>
+          </view>
         </view>
 
+        <view class="field-row">
+          <text class="field-row__l ff-yuan">慢性病</text>
+          <text class="field-row__v ff-yuan">{{ chronicLine }}</text>
+        </view>
 
-        <view class="row">
-          <text class="row__l">护理等级</text>
-          <text class="row__v">{{ careDisplay }}</text>
+        <view class="tags-card">
+          <text class="tags-card__ttl ff-yuan">标签</text>
+          <view class="tags-card__wrap">
+            <text v-if="flatTags.length === 0" class="tags-card__empty ff-yuan">暂无</text>
+            <text v-for="(c, i) in flatTags" :key="'tg-' + i" class="tag ff-yuan">{{ c }}</text>
+          </view>
         </view>
-        <view class="row">
-          <text class="row__l">分配护工</text>
-          <text class="row__v">{{ assigneeName }}</text>
+
+        <view class="field-row">
+          <text class="field-row__l ff-yuan">护理等级</text>
+          <text class="field-row__v ff-yuan">{{ careDisplay }}</text>
         </view>
-        <view class="row">
-          <text class="row__l">状态</text>
-          <text class="row__v">{{ statusZh }}</text>
+        <view class="field-row">
+          <text class="field-row__l ff-yuan">分配护工</text>
+          <text class="field-row__v ff-yuan">{{ assigneeName }}</text>
+        </view>
+        <view class="field-row">
+          <text class="field-row__l ff-yuan">状态</text>
+          <text class="field-row__v ff-yuan">{{ statusZh }}</text>
         </view>
       </view>
     </scroll-view>
 
-    <view v-else-if="!loading" class="state">
-      <text class="muted">未找到档案</text>
+    <view v-else class="state" :style="{ paddingTop: navOuterPx + 'px' }">
+      <text class="state__txt ff-yuan">未找到档案</text>
     </view>
 
     <view v-if="detail && showMatchBtn" class="foot">
-      <button class="cta" @tap="goMatch">开始匹配</button>
+      <view class="foot__fade" />
+      <button class="foot__btn ff-yuan" @tap="goMatch">开始匹配</button>
     </view>
   </view>
 </template>
@@ -92,21 +99,29 @@
 import { ref, computed } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { labelGender } from '@/utils/person-labels.js'
-import { formatWuxing, formatBirthday, normalizeBirthday, sixiangLabel } from '@/utils/format.js'
+import { formatWuxing, normalizeBirthday } from '@/utils/format.js'
 import { calcSixiangFromBirthday } from '@/utils/lunar.js'
 import { toastCloudError } from '@/utils/cloud-error.js'
 import { unwrapCloudObjectData } from '@/utils/cloud-result.js'
+import { useRulesStore } from '@/store/rules.js'
+import { envTagsToDisplayList } from '@/utils/env-tags.js'
+
+const AVATAR_FALLBACK = '/static/figma/files/profile_avatar_sample.png'
 
 const CARE_NAMES = ['—', '自理', '轻度', '中度', '重度', '特重']
 const STATUS_MAP = { active: '有效', inactive: '停用', archived: '归档' }
+
+const statusBarPx = ref(20)
+const navBarPx = ref(44)
+const navOuterPx = ref(64)
 
 const id = ref('')
 const loading = ref(true)
 const detail = ref(null)
 const scrollH = ref(500)
 const giverRows = ref([])
-/** 避免 onLoad 已拉取后 onShow 再请求一次 */
 const skipNextShowDetailFetch = ref(false)
+const rulesStore = useRulesStore()
 
 onLoad(async (opts) => {
   id.value = (opts && opts.id) || ''
@@ -120,7 +135,20 @@ onLoad(async (opts) => {
 
 const genderText = computed(() => labelGender(detail.value?.gender))
 
-const birthText = computed(() => formatBirthday(detail.value?.birthday))
+const birthCompact = computed(() => {
+  const b = normalizeBirthday(detail.value?.birthday)
+  if (b?.solar) {
+    const { year, month, day } = b.solar
+    if (year != null && month != null && day != null) {
+      return `${year}-${month}-${day}`
+    }
+  }
+  if (typeof detail.value?.birthday === 'string') {
+    const t = detail.value.birthday.trim()
+    if (t) return t
+  }
+  return '—'
+})
 
 const constellationText = computed(() => {
   const d = detail.value
@@ -138,7 +166,12 @@ const constellationText = computed(() => {
 })
 
 const wxText = computed(() => formatWuxing(detail.value?.wuxing))
-const sxText = computed(() => sixiangLabel(detail.value?.sixiang))
+
+const avatarDisplay = computed(() => {
+  const src = detail.value?.avatar || detail.value?.photo_url || detail.value?.avatar_url
+  if (src && String(src).trim()) return String(src).trim()
+  return AVATAR_FALLBACK
+})
 
 const chronicLine = computed(() => {
   const raw = detail.value?.chronic_disease
@@ -151,17 +184,9 @@ const chronicLine = computed(() => {
   return s.split(/[,，]/).map((x) => x.trim()).filter(Boolean).join('、') || '无'
 })
 
-function flatTagsFromEnv(env) {
-  if (!env || typeof env !== 'object') return []
-  const out = []
-  ;['hobby', 'lifestyle', 'personality', 'comm_style'].forEach((k) => {
-    const arr = env[k]
-    if (Array.isArray(arr)) out.push(...arr)
-  })
-  return out
-}
-
-const flatTags = computed(() => flatTagsFromEnv(detail.value?.env_tags))
+const flatTags = computed(() =>
+  envTagsToDisplayList(detail.value?.env_tags, rulesStore.envTagGroups)
+)
 
 const careDisplay = computed(() => {
   const c = detail.value?.care_level
@@ -183,8 +208,8 @@ const assigneeName = computed(() => {
 
 const statusZh = computed(() => {
   const s = detail.value?.status
-  if (s && STATUS_MAP[s]) return STATUS_MAP[s]
-  return '有效'
+  if (s && s !== 'active' && STATUS_MAP[s]) return STATUS_MAP[s]
+  return detail.value?.is_matched ? '有效' : '待匹配'
 })
 
 const showMatchBtn = computed(() => {
@@ -195,11 +220,18 @@ const showMatchBtn = computed(() => {
   return !t.is_matched
 })
 
-function layout() {
+function layoutNav() {
   const s = uni.getSystemInfoSync()
-  const nav = (s.statusBarHeight || 20) + 44
-  const foot = uni.upx2px(136)
-  scrollH.value = Math.max(200, s.windowHeight - nav - foot)
+  statusBarPx.value = s.statusBarHeight || 20
+  navBarPx.value = uni.upx2px(88)
+  navOuterPx.value = statusBarPx.value + navBarPx.value
+}
+
+function layout() {
+  layoutNav()
+  const s = uni.getSystemInfoSync()
+  const foot = showMatchBtn.value ? uni.upx2px(180) + (s.safeAreaInsets?.bottom || 0) : 0
+  scrollH.value = Math.max(200, s.windowHeight - foot)
 }
 
 async function loadGivers() {
@@ -221,6 +253,7 @@ async function load() {
   }
   loading.value = true
   try {
+    await rulesStore.fetchActiveEnvTags()
     await loadGivers()
     const tm = uniCloud.importObject('taker-manager')
     const res = await tm.getTakerDetail({ id: id.value })
@@ -230,6 +263,7 @@ async function load() {
     detail.value = null
   } finally {
     loading.value = false
+    layout()
   }
 }
 
@@ -241,6 +275,10 @@ onShow(async () => {
   }
   if (id.value) await load()
 })
+
+function goBack() {
+  uni.navigateBack()
+}
 
 function goEdit() {
   if (!id.value) return
@@ -256,86 +294,246 @@ function goMatch() {
 <style lang="scss" scoped>
 @import '@/styles/variables.scss';
 
+/* Figma 3588:8703 — 375×812，1px = 2rpx */
 .page {
   min-height: 100vh;
-  background: $color-bg;
+  background: linear-gradient(180deg, #faf6ff 0%, #eadaff 100%);
   box-sizing: border-box;
+}
+
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 100;
+  background: #faf6ff;
+}
+
+.nav__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav__back {
+  position: absolute;
+  left: 32rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav__back-ico {
+  width: 24rpx;
+  height: 48rpx;
+}
+
+.nav__ttl {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: rgba(49, 35, 58, 0.9);
 }
 
 .scroll {
   width: 100%;
+  box-sizing: border-box;
 }
 
-.pad {
-  padding: 24rpx $page-padding-x 48rpx;
-  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+.body {
+  padding: 24rpx 40rpx calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
-.sect {
+.hero {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.hero__avatar {
+  width: 136rpx;
+  height: 136rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #e8dff5;
+}
+
+.hero__main {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8rpx;
+}
+
+.hero__name {
   display: block;
-  font-size: 22rpx;
-  color: $color-text-secondary;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #31233a;
+  line-height: 1.3;
   margin-bottom: 12rpx;
 }
 
-.sect--mt {
-  margin-top: 28rpx;
-}
-
-.field-hint {
-  display: block;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  margin: 20rpx 0 12rpx;
-}
-
-.row {
+.hero__meta {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 22rpx 0;
-  border-bottom: 1rpx solid $color-border;
-  background: #fff;
-  border-radius: 0;
+  flex-wrap: wrap;
+  gap: 16rpx;
 }
 
-.row__l {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
+.hero__meta-tx {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #6c5c76;
+}
+
+.hero__edit {
   flex-shrink: 0;
-  margin-right: 24rpx;
-}
-
-.row__v {
-  flex: 1;
-  font-size: $font-size-base;
-  color: $color-text-primary;
-  text-align: right;
-}
-
-.chip-wrap {
+  margin-top: 16rpx;
+  height: 72rpx;
+  padding: 0 28rpx;
+  border-radius: 100rpx;
+  background: #ffffff;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.hero__edit-tx {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #31233a;
+}
+
+.traits {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  height: 160rpx;
+  margin-bottom: 24rpx;
+  border-radius: 32rpx;
+  background: #f0dbff;
+  overflow: hidden;
+}
+
+.traits__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 16rpx 8rpx;
+  box-sizing: border-box;
+}
+
+.traits__val {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #9245f9;
+  line-height: 1.2;
+}
+
+.traits__lab {
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #6c5c76;
+}
+
+.traits__sep {
+  width: 1rpx;
+  margin: 24rpx 0;
+  background: rgba(146, 69, 249, 0.2);
+  flex-shrink: 0;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  min-height: 84rpx;
+  padding: 0 36rpx;
+  margin-bottom: 16rpx;
+  border-radius: 100rpx;
+  background: rgba(255, 255, 255, 0.8);
+  box-sizing: border-box;
+}
+
+.field-row__l {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #6c5c76;
+}
+
+.field-row__v {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #31233a;
+  text-align: right;
+  word-break: break-all;
+}
+
+.tags-card {
+  margin-bottom: 16rpx;
+  padding: 28rpx 36rpx 32rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.8);
+  box-sizing: border-box;
+}
+
+.tags-card__ttl {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #6c5c76;
+  margin-bottom: 20rpx;
+}
+
+.tags-card__wrap {
+  display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-bottom: 8rpx;
 }
 
-.chip {
-  font-size: 22rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 999rpx;
-  background: rgba(74, 144, 226, 0.12);
-  color: #4a90e2;
+.tags-card__empty {
+  font-size: 24rpx;
+  color: #8d7a99;
+}
+
+.tag {
+  padding: 10rpx 28rpx;
+  border-radius: 40rpx;
+  background: #eadaff;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #590092;
+  line-height: 1.3;
 }
 
 .state {
-  padding: 120rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
 }
 
-.muted {
-  font-size: $font-size-base;
-  color: $color-text-secondary;
+.state__txt {
+  font-size: 28rpx;
+  color: #8d7a99;
 }
 
 .foot {
@@ -343,23 +541,43 @@ function goMatch() {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 24rpx $page-padding-x;
-  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1rpx solid $color-border;
+  z-index: 90;
+  padding: 0 60rpx calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
-.cta {
+.foot__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -80rpx;
+  height: 80rpx;
+  background: linear-gradient(
+    180deg,
+    rgba(240, 232, 251, 0) 0%,
+    #f0e8fb 23.45%,
+    #f0e8fb 100%
+  );
+  pointer-events: none;
+}
+
+.foot__btn {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 96rpx;
   line-height: 96rpx;
-  border-radius: 48rpx;
-  background: #4a90e2;
-  color: #fff;
-  font-size: $font-size-base;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 100rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(47deg, #c766ff 11.9%, #9245f9 94%);
+}
 
-  &::after {
-    border: none;
-  }
+.foot__btn::after {
+  border: none;
 }
 </style>

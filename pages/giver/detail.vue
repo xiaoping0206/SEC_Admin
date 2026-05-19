@@ -86,6 +86,8 @@ import { formatWuxing, formatBirthday, normalizeBirthday, sixiangLabel } from '@
 import { calcSixiangFromBirthday } from '@/utils/lunar.js'
 import { toastCloudError } from '@/utils/cloud-error.js'
 import { unwrapCloudObjectData } from '@/utils/cloud-result.js'
+import { useRulesStore } from '@/store/rules.js'
+import { envTagsToDisplayList } from '@/utils/env-tags.js'
 
 const STATUS_MAP = { active: '有效', inactive: '停用', archived: '归档' }
 
@@ -93,6 +95,7 @@ const id = ref('')
 const loading = ref(true)
 const detail = ref(null)
 const scrollH = ref(500)
+const rulesStore = useRulesStore()
 
 onLoad((opts) => {
   id.value = (opts && opts.id) || ''
@@ -138,17 +141,9 @@ const svcText = computed(() => {
   return `${cur} / ${mx}`
 })
 
-const flatTags = computed(() => flatTagsFromEnv(detail.value?.env_tags))
-
-function flatTagsFromEnv(env) {
-  if (!env || typeof env !== 'object') return []
-  const out = []
-  ;['hobby', 'lifestyle', 'personality', 'comm_style'].forEach((k) => {
-    const arr = env[k]
-    if (Array.isArray(arr)) out.push(...arr)
-  })
-  return out
-}
+const flatTags = computed(() =>
+  envTagsToDisplayList(detail.value?.env_tags, rulesStore.envTagGroups)
+)
 
 const statusZh = computed(() => {
   const s = detail.value?.status
@@ -168,6 +163,7 @@ async function load() {
   }
   loading.value = true
   try {
+    await rulesStore.fetchActiveEnvTags()
     const gm = uniCloud.importObject('giver-manager')
     const res = await gm.getGiverDetail({ id: id.value })
     detail.value = unwrapCloudObjectData(res)

@@ -189,6 +189,8 @@ import {
 } from '@/utils/lunar.js'
 import { formatWuxing as wuxingLabel } from '@/utils/format.js'
 import { parseCloudError } from '@/utils/cloud-error.js'
+import { useRulesStore } from '@/store/rules.js'
+import { envTagsToDisplayList, normalizeStoredEnvTags } from '@/utils/env-tags.js'
 
 const currentId = ref('')
 const loading = ref(true)
@@ -198,6 +200,7 @@ const showBirth = ref(false)
 const showMbti = ref(false)
 const showTag = ref(false)
 const showExpPanel = ref(false)
+const rulesStore = useRulesStore()
 
 const experienceOptions = Array.from({ length: 51 }, (_, i) => `${i}年`)
 const experienceIndex = ref([0])
@@ -298,16 +301,9 @@ function onStatusChange(e) {
   form.status = statusValues[i] || 'active'
 }
 
-const tagChips = computed(() => {
-  const out = []
-  const env = form.env_tags
-  if (!env || typeof env !== 'object') return out
-  ;['hobby', 'lifestyle', 'personality', 'comm_style'].forEach((k) => {
-    const arr = env[k]
-    if (Array.isArray(arr)) out.push(...arr)
-  })
-  return out
-})
+const tagChips = computed(() =>
+  envTagsToDisplayList(form.env_tags, rulesStore.envTagGroups)
+)
 
 function layout() {
   const s = uni.getSystemInfoSync()
@@ -337,12 +333,12 @@ function onBirthConfirm(payload) {
 }
 
 function onTagsConfirm(v) {
-  const payload = v || {}
+  const normalized = normalizeStoredEnvTags(v || {}, rulesStore.envTagGroups)
   form.env_tags = {
-    hobby: [...(payload.hobby || [])],
-    lifestyle: [...(payload.lifestyle || [])],
-    personality: [...(payload.personality || [])],
-    comm_style: [...(payload.comm_style || [])]
+    hobby: [...(normalized.hobby || [])],
+    lifestyle: [...(normalized.lifestyle || [])],
+    personality: [...(normalized.personality || [])],
+    comm_style: [...(normalized.comm_style || [])]
   }
 }
 
@@ -385,6 +381,7 @@ async function load() {
   }
   loading.value = true
   try {
+    await rulesStore.fetchActiveEnvTags()
     const gm = uniCloud.importObject('giver-manager')
     const res = await gm.getGiverDetail({ id: currentId.value })
     const d = res?.data
@@ -404,10 +401,11 @@ async function load() {
         ? Math.max(0, Math.min(50, d.experience_years))
         : null
     if (d.env_tags && typeof d.env_tags === 'object') {
-      form.env_tags.hobby = [...(d.env_tags.hobby || [])]
-      form.env_tags.lifestyle = [...(d.env_tags.lifestyle || [])]
-      form.env_tags.personality = [...(d.env_tags.personality || [])]
-      form.env_tags.comm_style = [...(d.env_tags.comm_style || [])]
+      const normalized = normalizeStoredEnvTags(d.env_tags, rulesStore.envTagGroups)
+      form.env_tags.hobby = [...(normalized.hobby || [])]
+      form.env_tags.lifestyle = [...(normalized.lifestyle || [])]
+      form.env_tags.personality = [...(normalized.personality || [])]
+      form.env_tags.comm_style = [...(normalized.comm_style || [])]
     }
     form.qualification = d.qualification ? String(d.qualification) : ''
     const m = typeof d.max_taker_count === 'number' ? Math.round(d.max_taker_count) : 5
