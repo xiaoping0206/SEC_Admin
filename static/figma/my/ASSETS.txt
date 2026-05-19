@@ -1,0 +1,18 @@
+Figma 节点：1373:8725（「我的」无周报）— 本地切图清单
+------------------------------------------------
+请从 Figma Dev Mode 选中对应 Frame / 组件，右键 Export 为 PNG@2x 或 SVG，覆盖到本目录同名文件：
+
+subtract.svg           — 资料卡Subtract 造型底图（矢量，#D9D9D9）；若小程序基底过旧可把同节点导出PNG覆盖为 subtract.png 并改用该路径
+ic_edit_clipboard.png — 右上角 3D 剪贴板（Figma 1373:8732 → 页面 96×96rpx）
+avatar_frame.png      — 头像外圈/描边（若设计为独立层；可与头像合并则不必）
+ic_menu_files.png     — 「档案管理」左侧 26×26pt 图标 → 52×52rpx
+ic_menu_settings.png  — 「设置」左侧 26×26pt 图标
+ic_chevron_right.svg  — 列表右侧箭头（Figma 矢量导出；占位图勿用同名 png）
+tb_match.png          — 底栏「匹配」图标（Figma 1373:8761，约 40×40pt 设计尺寸）
+tb_message.png        — 底栏「消息」（1373:8757）
+tb_my.png             — 底栏「我的」（1373:8762）
+
+说明：已通过 Figma MCP 拉取 MCP 导出 PNG 写入本目录（若图标含灰底，与自定义 TabBar
+内圆角底色接近即可）。正式发布前建议在 Figma 内再导出 PNG@2x/3× 永久备份。
+
+更早说明：MCP CDN 临时 URL 仅供开发拉取一次；仍以 static 打包为准。

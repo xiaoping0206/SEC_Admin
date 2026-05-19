@@ -1,0 +1,25 @@
+与 styles/figma-my-fonts.scss、utils/load-figma-fonts.js 对应（微信小程序务必使用 loadFontFace，见下文）
+
+1) MY 标题
+   本地：Kingnammm-Maiyuan-II-Regular-2.ttf
+   font-family：'Kingnammm Maiyuan 2'
+   类：.ff-my
+
+2) 机构名 / 菜单 / Badge
+   本地：AlimamaFangYuanTi-VF.ttf（已去掉文件名空格，避免 Vite 编译期无法解析 url）
+   font-family：'Alimama FangYuanTi VF'
+   类：.ff-yuan
+
+3) ID 行（id-POP_FTMARU）
+   本地：id-ftmaru400b-2.otf
+   font-family：'id POP FTMARU'
+   类：.ff-pop
+
+4) 备选 / 正文
+   本地：AlibabaPuHuiTi-2-55-Regular.ttf（及同目录其它字重，可按需追加 @font-face）
+   font-family：'Alibaba PuHuiTi 2'
+
+5) 微信小程序注意
+   仅在微信开发者工具里写 @font-face 往往看不到变化；项目在 App.vue 中已调用 uni.loadFontFace({ global:true })。
+   重新编译后到「我的」页查看；必要时清缓存并重编译。
+   iOS/Android 原生见官方对 loadFontFace 与 local 字体路径说明。

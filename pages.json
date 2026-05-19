@@ -1,0 +1,192 @@
+{
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^u-(.*)": "uview-plus/components/u-$1/u-$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/matching/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/matching/select-taker",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/matching/select-giver",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/matching/search",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/message/index",
+			"style": {
+				"navigationBarTitleText": "消息"
+			}
+		},
+		{
+			"path": "pages/index/my",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "uni-app"
+			}
+		},
+		{
+			"path": "pages/auth/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/taker/list",
+			"style": {
+				"navigationBarTitleText": "老人档案"
+			}
+		},
+		{
+			"path": "pages/taker/detail",
+			"style": {
+				"navigationBarTitleText": "个人信息",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/taker/edit",
+			"style": {
+				"navigationBarTitleText": "个人信息",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/taker/form",
+			"style": {
+				"navigationBarTitleText": "老人档案"
+			}
+		},
+		{
+			"path": "pages/taker/matching",
+			"style": {
+				"navigationBarTitleText": "匹配"
+			}
+		},
+		{
+			"path": "pages/giver/list",
+			"style": {
+				"navigationBarTitleText": "护工列表"
+			}
+		},
+		{
+			"path": "pages/giver/detail",
+			"style": {
+				"navigationBarTitleText": "个人信息",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/giver/edit",
+			"style": {
+				"navigationBarTitleText": "个人信息",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/giver/form",
+			"style": {
+				"navigationBarTitleText": "护工档案"
+			}
+		},
+		{
+			"path": "pages/matching/loading",
+			"style": {
+				"navigationBarTitleText": "匹配中",
+				"navigationBarBackgroundColor": "#F5F7FA",
+				"backgroundColor": "#F5F7FA"
+			}
+		},
+		{
+			"path": "pages/matching/result",
+			"style": {
+				"navigationBarTitleText": "匹配结果",
+				"navigationBarBackgroundColor": "#F7F8FA",
+				"backgroundColor": "#F7F8FA"
+			}
+		},
+		{
+			"path": "pages/message/weekly-report",
+			"style": {
+				"navigationBarTitleText": "周报推送"
+			}
+		},
+		{
+			"path": "pages/my/account",
+			"style": {
+				"navigationBarTitleText": "账号资料"
+			}
+		},
+		{
+			"path": "pages/my/settings",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/admin/upload-rules",
+			"style": {
+				"navigationBarTitleText": "规划管理"
+			}
+		},
+		{
+			"path": "pages/admin/version-list",
+			"style": {
+				"navigationBarTitleText": "版本管理"
+			}
+		},
+		{
+			"path": "pages/admin/files",
+			"style": {
+				"navigationBarTitleText": "档案管理",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/admin/new-archive",
+			"style": {
+				"navigationBarTitleText": "新建档案",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/admin/search",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {}
+}

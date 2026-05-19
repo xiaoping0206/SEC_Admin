@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "dayjs": "^1.11.20",
+    "pinia": "^3.0.4",
+    "uview-plus": "^3.7.36",
+    "vue": "^3.5.33",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "sass": "^1.99.0"
+  }
+}

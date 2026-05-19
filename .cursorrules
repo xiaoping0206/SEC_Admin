@@ -1,0 +1,257 @@
+# .cursorrules — 老年福利护理匹配应用 v2
+# Cursor 自动读取本文件，作为所有代码生成的强制规范。
+
+---
+
+## 项目技术栈
+
+- 框架：uni-app（Vue 3 Composition API）
+- UI：uView Plus（Vue3）
+- 后端：uniCloud 阿里云 Serverless（Cloud Object + Cloud Function）
+- 认证：uni-id-pages
+- 状态管理：Pinia
+- 样式：SCSS，变量统一从 `/styles/variables.scss` 引入
+- 目标平台：微信小程序（一期）→ iOS App（二期）
+
+---
+
+## 绝对禁止（违反将导致代码无法跨平台运行）
+
+```
+❌ 禁止使用 wx.* API         → 必须使用 uni.* 替代
+❌ 禁止使用原始 if 做平台分支  → 必须使用 #ifdef 条件编译
+❌ 禁止在客户端计算匹配分数    → 只能由 match-engine Cloud Function 负责
+❌ 禁止物理删除数据库数据      → 只使用 is_deleted: true 软删除
+❌ 禁止使用 Options API       → 只使用 <script setup> Vue 3 语法
+❌ 禁止将个人信息放入 URL 参数
+❌ 禁止在生产代码中残留 console.log
+```
+
+---
+
+## Vue 组件规范
+
+### 基本结构（必须遵守）
+```vue
+<template>
+  <!-- 模板内容 -->
+</template>
+
+<script setup>
+// 只使用 <script setup> 语法
+import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/store/user'
+</script>
+
+<style lang="scss" scoped>
+@import '@/styles/variables.scss';
+// 样式内容
+</style>
+```
+
+### 禁止使用 Options API
+```js
+// ❌ 禁止
+export default {
+  data() { return {} },
+  methods: {}
+}
+
+// ✅ 正确
+const count = ref(0)
+const handleClick = () => { count.value++ }
+```
+
+---
+
+## 平台条件编译规范
+
+```vue
+<!-- ✅ 正确：使用 #ifdef 条件编译 -->
+// #ifdef MP-WEIXIN
+wx.login({ ... })  // 仅在此块内允许使用 wx.*
+// #endif
+
+// #ifdef APP-PLUS
+// iOS 专用逻辑
+// #endif
+
+// #ifndef MP-WEIXIN
+// 非微信平台逻辑
+// #endif
+
+<!-- ❌ 禁止：使用原始 if 做平台判断 -->
+if (uni.getSystemInfoSync().platform === 'ios') { ... }
+```
+
+---
+
+## uniCloud 调用规范
+
+```js
+// ✅ Cloud Object 调用方式
+const takerManager = uniCloud.importObject('taker-manager')
+const res = await takerManager.getTakerList({ page: 1, pageSize: 20 })
+
+// ✅ 统一返回值格式
+// 成功
+{ code: 0, msg: 'success', data: {} }
+
+// 失败（Cloud Function 内部抛出）
+throw new Error(JSON.stringify({ code: -1000, msg: '参数错误' }))
+
+// 错误代码规范
+// -1000 参数错误
+// -1001 数据不存在
+// -1002 权限不足
+// -2001 匹配失败
+```
+
+---
+
+## 数据库操作规范
+
+```js
+// ✅ 软删除（禁止物理删除）
+await db.collection('taker').doc(id).update({
+  is_deleted: true,
+  update_date: Date.now()
+})
+
+// ✅ 查询时必须过滤已删除数据
+const res = await db.collection('taker')
+  .where({ is_deleted: false })
+  .get()
+
+// ✅ 时间戳统一使用 Unix 毫秒
+create_date: Date.now(),
+update_date: Date.now()
+```
+
+---
+
+## 匹配引擎规范
+
+```js
+// ❌ 禁止在页面或组件中计算匹配分数
+const score = calcWuxingScore(taker, giver)  // 绝对禁止
+
+// ✅ 必须通过 Cloud Function 调用
+const matchEngine = uniCloud.importObject('match-engine')  // 若为 Cloud Object
+// 或
+const res = await uniCloud.callFunction({
+  name: 'match-engine',
+  data: { takerId: 'xxx' }
+})
+
+// 匹配分数公式（仅在 Cloud Function 内部使用）
+// 总分 = 五行×0.40 + MBTI×0.25 + 环境×0.20 + 四象×0.15
+// 等级：S(90~) / A(75~) / B(60~) / C(45~) / D(~44)
+```
+
+---
+
+## Pinia Store 规范
+
+```js
+// ✅ 正确：使用 defineStore + setup 语法
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export const useTakerStore = defineStore('taker', () => {
+  const list = ref([])
+  const loading = ref(false)
+
+  const fetchList = async () => {
+    loading.value = true
+    try {
+      const takerManager = uniCloud.importObject('taker-manager')
+      const res = await takerManager.getTakerList()
+      list.value = res.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { list, loading, fetchList }
+})
+```
+
+---
+
+## SCSS 样式规范
+
+```scss
+// ✅ 所有组件必须引入变量文件
+<style lang="scss" scoped>
+@import '@/styles/variables.scss';
+
+.container {
+  padding: $spacing-md;
+  color: $color-primary;
+}
+</style>
+
+// ❌ 禁止硬编码颜色和间距
+.container {
+  padding: 16px;       // 禁止
+  color: #007AFF;      // 禁止
+}
+```
+
+---
+
+## 文件命名规范
+
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| 页面文件 | 小写 + 连字符 | `taker-list.vue` |
+| 组件文件 | PascalCase | `TakerCard.vue` |
+| Store 文件 | 小写 | `taker.js` |
+| 工具函数 | 小写 + 连字符 | `validate.js` |
+| Cloud Function | 小写 + 连字符 | `match-engine` |
+
+---
+
+## 目录结构参考
+
+```
+pages/
+  taker/       list.vue / detail.vue / form.vue / matching.vue
+  giver/       list.vue / detail.vue / form.vue
+  matching/    index.vue / result.vue
+  admin/       upload-rules.vue / version-list.vue
+
+components/
+  common/      CareScoreBar.vue / UserCard.vue / MatchTag.vue / EmptyState.vue
+  taker/       TakerCard.vue / TakerProfileForm.vue
+  giver/       GiverCard.vue / GiverProfileForm.vue
+
+store/         user.js / taker.js / giver.js / matching.js
+utils/         request.js / validate.js / format.js
+
+uniCloud/
+  cloudfunctions/
+    taker-manager/index.obj.js
+    giver-manager/index.obj.js
+    match-engine/index.js
+    upload-matching-rules/index.obj.js
+  database/
+    taker.schema.json / giver.schema.json
+    matching_rule_versions.schema.json / matching_results.schema.json
+```
+
+---
+
+## 代码生成时的检查清单
+
+在生成任何代码之前，Cursor 必须确认以下所有项目：
+
+- [ ] 是否使用了 `<script setup>` 语法？
+- [ ] 是否避免了所有 `wx.*` API？
+- [ ] 平台分支是否使用了 `#ifdef`？
+- [ ] 匹配分数计算是否在 Cloud Function 中？
+- [ ] 删除操作是否使用了软删除？
+- [ ] 样式是否引入了 `variables.scss`？
+- [ ] 是否没有 `console.log` 残留？
+- [ ] 返回值是否符合 `{ code, msg, data }` 格式？

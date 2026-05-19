@@ -1,0 +1,202 @@
+{
+  "bsonType": "object",
+  "description": "匹配规则版本表——存储从 match_rules_v2.xlsx 解析的所有规则及权重配置",
+  "required": ["version"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "文档唯一ID，由 uniCloud 自动生成",
+      "bsonType": "string"
+    },
+    "version": {
+      "description": "版本号，建议语义化版本格式（如 v2.0.0）",
+      "label": "版本号",
+      "bsonType": "string",
+      "trim": "both",
+      "minLength": 1,
+      "maxLength": 30,
+      "errorMessage": {
+        "required": "版本号为必填项",
+        "minLength": "版本号不能为空"
+      }
+    },
+    "description": {
+      "description": "版本说明，描述本次规则的变更内容",
+      "label": "版本说明",
+      "bsonType": "string",
+      "maxLength": 500
+    },
+    "is_active": {
+      "description": "是否为当前激活版本（同一时刻只能有一个版本处于激活状态）",
+      "label": "是否激活",
+      "bsonType": "bool",
+      "defaultValue": false
+    },
+    "weights": {
+      "description": "四维度权重配置（四项之和必须等于1.00）",
+      "label": "维度权重",
+      "bsonType": "object",
+      "required": ["w_wuxing", "w_mbti", "w_env", "w_sixiang"],
+      "properties": {
+        "w_wuxing": {
+          "description": "五行（性格节奏适配度）权重，默认0.40",
+          "label": "五行权重",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 1,
+          "defaultValue": 0.40
+        },
+        "w_mbti": {
+          "description": "MBTI（行为沟通适配度）权重，默认0.25",
+          "label": "MBTI权重",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 1,
+          "defaultValue": 0.25
+        },
+        "w_env": {
+          "description": "生活环境（生活环境适配度）权重，默认0.20",
+          "label": "环境权重",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 1,
+          "defaultValue": 0.20
+        },
+        "w_sixiang": {
+          "description": "四象（情绪互动适配度）权重，默认0.15",
+          "label": "四象权重",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 1,
+          "defaultValue": 0.15
+        }
+      },
+      "defaultValue": {
+        "w_wuxing": 0.40,
+        "w_mbti": 0.25,
+        "w_env": 0.20,
+        "w_sixiang": 0.15
+      }
+    },
+    "rules": {
+      "description": "从 match_rules_v2.xlsx 解析的完整规则数据（STEP 7 填充）",
+      "label": "规则数据",
+      "bsonType": "object",
+      "properties": {
+        "wuxing": {
+          "description": "五行配对规则数组（25行，字段：taker / giver / score）",
+          "label": "五行规则",
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "taker": { "description": "老人五行属性", "bsonType": "string" },
+              "giver": { "description": "护理员五行属性", "bsonType": "string" },
+              "score": { "description": "该配对得分（0~100）", "bsonType": "double" }
+            }
+          },
+          "defaultValue": []
+        },
+        "sixiang": {
+          "description": "四象配对规则数组（16行，字段：taker / giver / score）",
+          "label": "四象规则",
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "taker": { "description": "老人四象属性", "bsonType": "string" },
+              "giver": { "description": "护理员四象属性", "bsonType": "string" },
+              "score": { "description": "该配对得分（0~100）", "bsonType": "double" }
+            }
+          },
+          "defaultValue": []
+        },
+        "mbti_dimension": {
+          "description": "MBTI维度规则数组（16行，字段：dimension / taker / giver / score）",
+          "label": "MBTI维度规则",
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "dimension": { "description": "MBTI维度代码（EI / SN / TF / JP）", "bsonType": "string" },
+              "taker":     { "description": "老人该维度字母", "bsonType": "string" },
+              "giver":     { "description": "护理员该维度字母", "bsonType": "string" },
+              "score":     { "description": "该维度配对得分（0~100）", "bsonType": "double" }
+            }
+          },
+          "defaultValue": []
+        },
+        "mbti_modifier": {
+          "description": "MBTI修正规则数组（12行，字段：condition_taker / condition_giver / adjustment）",
+          "label": "MBTI修正规则",
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "condition_taker": { "description": "触发修正的老人MBTI类型", "bsonType": "string" },
+              "condition_giver": { "description": "触发修正的护理员MBTI类型", "bsonType": "string" },
+              "adjustment":      { "description": "分数修正值（正值加分，负值减分）", "bsonType": "double" }
+            }
+          },
+          "defaultValue": []
+        },
+        "env_items": {
+          "description": "生活环境项目列表（36项，字段：item_code / category / label）",
+          "label": "环境项目",
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "item_code": { "description": "项目编码（唯一标识）", "bsonType": "string" },
+              "category":  { "description": "所属类别（hobby / lifestyle / personality / comm_style）", "bsonType": "string" },
+              "label":     { "description": "项目中文显示名称", "bsonType": "string" }
+            }
+          },
+          "defaultValue": []
+        },
+        "env_score": {
+          "description": "生活环境重叠率区间评分规则（5区间，字段：min_ratio / score）",
+          "label": "环境评分区间",
+          "bsonType": "array",
+          "items": {
+            "bsonType": "object",
+            "properties": {
+              "min_ratio": { "description": "区间下限（含）：0.80→100 / 0.60→85 / 0.40→70 / 0.20→50 / 0.00→30", "bsonType": "double" },
+              "score":     { "description": "该区间对应得分", "bsonType": "double" }
+            }
+          },
+          "defaultValue": []
+        }
+      },
+      "defaultValue": {
+        "wuxing": [],
+        "sixiang": [],
+        "mbti_dimension": [],
+        "mbti_modifier": [],
+        "env_items": [],
+        "env_score": []
+      }
+    },
+    "uploaded_by": {
+      "description": "上传者的 uni-id 用户ID",
+      "label": "上传者",
+      "bsonType": "string"
+    },
+    "upload_date": {
+      "description": "上传时间，Unix 毫秒时间戳",
+      "label": "上传时间",
+      "bsonType": "timestamp"
+    },
+    "file_name": {
+      "description": "原始 Excel 文件名（如 match_rules_v2.xlsx）",
+      "label": "文件名",
+      "bsonType": "string",
+      "maxLength": 100
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "bsonType": "object",
+  "description": "老人（服务接受方）档案表",
+  "required": ["name"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "文档唯一ID，由 uniCloud 自动生成",
+      "bsonType": "string"
+    },
+    "name": {
+      "description": "老人姓名（必填）",
+      "label": "姓名",
+      "bsonType": "string",
+      "trim": "both",
+      "minLength": 1,
+      "maxLength": 20,
+      "errorMessage": {
+        "required": "姓名为必填项",
+        "minLength": "姓名不能为空",
+        "maxLength": "姓名不得超过20个字符"
+      }
+    },
+    "age": {
+      "description": "老人年龄（岁）",
+      "label": "年龄",
+      "bsonType": "int",
+      "minimum": 0,
+      "maximum": 150,
+      "errorMessage": {
+        "minimum": "年龄不得小于0",
+        "maximum": "年龄不得超过150"
+      }
+    },
+    "gender": {
+      "description": "性别：male=男，female=女",
+      "label": "性别",
+      "bsonType": "string",
+      "enum": ["male", "female"],
+      "errorMessage": {
+        "enum": "性别只能为 male 或 female"
+      }
+    },
+    "contact": {
+      "description": "联系方式（手机号）",
+      "label": "联系方式",
+      "bsonType": "string",
+      "maxLength": 20
+    },
+    "care_level": {
+      "description": "护理等级，1（轻度）~ 5（重度）",
+      "label": "护理等级",
+      "bsonType": "int",
+      "minimum": 1,
+      "maximum": 5,
+      "defaultValue": 1,
+      "errorMessage": {
+        "minimum": "护理等级最低为1",
+        "maximum": "护理等级最高为5"
+      }
+    },
+    "wuxing": {
+      "description": "五行属性：water=水 / wood=木 / fire=火 / earth=土 / metal=金（性格节奏适配维度，权重40%）",
+      "label": "五行",
+      "bsonType": "string",
+      "enum": ["water", "wood", "fire", "earth", "metal"],
+      "errorMessage": {
+        "enum": "五行值必须为 water / wood / fire / earth / metal 之一"
+      }
+    },
+    "sixiang": {
+      "description": "四象属性：fire=火象 / earth=土象 / air=气象 / water=水象（情绪互动适配维度，权重15%）",
+      "label": "四象",
+      "bsonType": "string",
+      "enum": ["fire", "earth", "air", "water"],
+      "errorMessage": {
+        "enum": "四象值必须为 fire / earth / air / water 之一"
+      }
+    },
+    "mbti": {
+      "description": "MBTI人格类型（16种）；允许未填时用空字符串",
+      "label": "MBTI",
+      "bsonType": "string",
+      "maxLength": 4
+    },
+    "birthday": {
+      "description": "生日：阳历基准 + 可选农历录入",
+      "bsonType": "object",
+      "label": "生日"
+    },
+    "constellation": {
+      "description": "星座（中文），由阳历生日推导",
+      "bsonType": "string",
+      "maxLength": 10,
+      "label": "星座"
+    },
+    "chronic_disease": {
+      "description": "慢性病史描述（可多选后以逗号存储）",
+      "bsonType": "string",
+      "maxLength": 300,
+      "label": "慢性病史"
+    },
+    "env_tags": {
+      "description": "生活环境标签组（生活环境适配维度，权重20%），共4类36项",
+      "label": "生活环境标签",
+      "bsonType": "object",
+      "properties": {
+        "hobby": {
+          "description": "爱好类标签（类别内权重25%）",
+          "label": "爱好",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        },
+        "lifestyle": {
+          "description": "生活方式类标签（类别内权重30%）",
+          "label": "生活方式",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        },
+        "personality": {
+          "description": "性格类标签（类别内权重25%）",
+          "label": "性格",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        },
+        "comm_style": {
+          "description": "沟通方式类标签（类别内权重20%）",
+          "label": "沟通方式",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        }
+      },
+      "defaultValue": {
+        "hobby": [],
+        "lifestyle": [],
+        "personality": [],
+        "comm_style": []
+      }
+    },
+    "notes": {
+      "description": "备注信息（其他需要说明的情况）",
+      "label": "备注",
+      "bsonType": "string",
+      "maxLength": 500
+    },
+    "is_matched": {
+      "description": "是否已完成匹配（true=已匹配，false=待匹配）",
+      "label": "匹配状态",
+      "bsonType": "bool",
+      "defaultValue": false
+    },
+    "assigned_giver_id": {
+      "description": "管理员手动指定的分配护工文档 _id",
+      "label": "分配护工",
+      "bsonType": "string"
+    },
+    "status": {
+      "description": "档案状态：active 有效 / inactive 停用 / archived 归档",
+      "label": "状态",
+      "bsonType": "string",
+      "enum": ["active", "inactive", "archived"],
+      "defaultValue": "active"
+    },
+    "is_deleted": {
+      "description": "软删除标记（true=已删除），禁止物理删除",
+      "label": "删除状态",
+      "bsonType": "bool",
+      "defaultValue": false
+    },
+    "create_date": {
+      "description": "创建时间，Unix 毫秒时间戳",
+      "label": "创建时间",
+      "bsonType": "timestamp"
+    },
+    "update_date": {
+      "description": "最后更新时间，Unix 毫秒时间戳",
+      "label": "更新时间",
+      "bsonType": "timestamp"
+    }
+  }
+}

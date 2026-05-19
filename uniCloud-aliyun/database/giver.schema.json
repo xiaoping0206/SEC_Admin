@@ -1,0 +1,203 @@
+{
+  "bsonType": "object",
+  "description": "护理员（服务提供方）档案表",
+  "required": ["name"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "文档唯一ID，由 uniCloud 自动生成",
+      "bsonType": "string"
+    },
+    "name": {
+      "description": "护理员姓名（必填）",
+      "label": "姓名",
+      "bsonType": "string",
+      "trim": "both",
+      "minLength": 1,
+      "maxLength": 20,
+      "errorMessage": {
+        "required": "姓名为必填项",
+        "minLength": "姓名不能为空",
+        "maxLength": "姓名不得超过20个字符"
+      }
+    },
+    "age": {
+      "description": "护理员年龄（岁）",
+      "label": "年龄",
+      "bsonType": "int",
+      "minimum": 18,
+      "maximum": 80,
+      "errorMessage": {
+        "minimum": "年龄不得小于18岁",
+        "maximum": "年龄不得超过80岁"
+      }
+    },
+    "gender": {
+      "description": "性别：male=男，female=女",
+      "label": "性别",
+      "bsonType": "string",
+      "enum": ["male", "female"],
+      "errorMessage": {
+        "enum": "性别只能为 male 或 female"
+      }
+    },
+    "qualification": {
+      "description": "资质证书名称（如：初级护理员、养老护理员等）",
+      "label": "资质证书",
+      "bsonType": "string",
+      "maxLength": 50
+    },
+    "experience_years": {
+      "description": "护理工作年限（年）",
+      "label": "工作年限",
+      "bsonType": "int",
+      "minimum": 0,
+      "maximum": 60,
+      "defaultValue": 0,
+      "errorMessage": {
+        "minimum": "工作年限不得小于0",
+        "maximum": "工作年限不得超过60年"
+      }
+    },
+    "care_level": {
+      "description": "护理能力等级：1自理 / 2轻度 / 3中度 / 4重度 / 5特重",
+      "label": "护理等级",
+      "bsonType": "int",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "available_areas": {
+      "description": "可服务地区列表（区/街道名称数组）",
+      "label": "可服务地区",
+      "bsonType": "array",
+      "items": { "bsonType": "string" },
+      "defaultValue": []
+    },
+    "wuxing": {
+      "description": "五行属性：water=水 / wood=木 / fire=火 / earth=土 / metal=金（性格节奏适配维度，权重40%）",
+      "label": "五行",
+      "bsonType": "string",
+      "enum": ["water", "wood", "fire", "earth", "metal"],
+      "errorMessage": {
+        "enum": "五行值必须为 water / wood / fire / earth / metal 之一"
+      }
+    },
+    "sixiang": {
+      "description": "四象属性：fire=火象 / earth=土象 / air=气象 / water=水象（情绪互动适配维度，权重15%）",
+      "label": "四象",
+      "bsonType": "string",
+      "enum": ["fire", "earth", "air", "water"],
+      "errorMessage": {
+        "enum": "四象值必须为 fire / earth / air / water 之一"
+      }
+    },
+    "mbti": {
+      "description": "MBTI人格类型；允许暂不填写空字符串",
+      "label": "MBTI",
+      "bsonType": "string",
+      "maxLength": 4
+    },
+    "birthday": {
+      "description": "生日：阳历基准 + 可选农历录入",
+      "label": "生日",
+      "bsonType": "object"
+    },
+    "constellation": {
+      "description": "星座（中文），由阳历生日推导",
+      "label": "星座",
+      "bsonType": "string",
+      "maxLength": 10
+    },
+    "env_tags": {
+      "description": "生活环境标签组（生活环境适配维度，权重20%），共4类36项",
+      "label": "生活环境标签",
+      "bsonType": "object",
+      "properties": {
+        "hobby": {
+          "description": "爱好类标签（类别内权重25%）",
+          "label": "爱好",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        },
+        "lifestyle": {
+          "description": "生活方式类标签（类别内权重30%）",
+          "label": "生活方式",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        },
+        "personality": {
+          "description": "性格类标签（类别内权重25%）",
+          "label": "性格",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        },
+        "comm_style": {
+          "description": "沟通方式类标签（类别内权重20%）",
+          "label": "沟通方式",
+          "bsonType": "array",
+          "items": { "bsonType": "string" },
+          "defaultValue": []
+        }
+      },
+      "defaultValue": {
+        "hobby": [],
+        "lifestyle": [],
+        "personality": [],
+        "comm_style": []
+      }
+    },
+    "max_taker_count": {
+      "description": "最多可同时服务的老人人数",
+      "label": "最大接受人数",
+      "bsonType": "int",
+      "minimum": 1,
+      "maximum": 10,
+      "defaultValue": 5,
+      "errorMessage": {
+        "minimum": "最少须可接受1位老人",
+        "maximum": "最多只能接受10位老人"
+      }
+    },
+    "current_taker_count": {
+      "description": "当前正在服务的老人人数（由系统自动维护，禁止手动修改）",
+      "label": "当前服务人数",
+      "bsonType": "int",
+      "minimum": 0,
+      "defaultValue": 0,
+      "errorMessage": {
+        "minimum": "当前服务人数不得为负数"
+      }
+    },
+    "status": {
+      "description": "档案状态：active 有效 / inactive 停用 / archived 归档",
+      "label": "状态",
+      "bsonType": "string",
+      "enum": ["active", "inactive", "archived"],
+      "defaultValue": "active"
+    },
+    "is_deleted": {
+      "description": "软删除标记（true=已删除），禁止物理删除",
+      "label": "删除状态",
+      "bsonType": "bool",
+      "defaultValue": false
+    },
+    "create_date": {
+      "description": "创建时间，Unix 毫秒时间戳",
+      "label": "创建时间",
+      "bsonType": "timestamp"
+    },
+    "update_date": {
+      "description": "最后更新时间，Unix 毫秒时间戳",
+      "label": "更新时间",
+      "bsonType": "timestamp"
+    }
+  }
+}

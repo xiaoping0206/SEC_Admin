@@ -1,0 +1,43 @@
+/* Figma「我的」页：与 utils/load-figma-fonts.js / static/fonts/FIGMA_MY_FONTS.txt 保持 family 名称一致。
+ * 小程序端须配合 uni.loadFontFace(global:true)，否则仅写 @font-face 常不生效。 */
+
+@font-face {
+  font-family: 'Kingnammm Maiyuan 2';
+  src: url('/static/fonts/Kingnammm-Maiyuan-II-Regular-2.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Alimama FangYuanTi VF';
+  /* 物理文件名已无空格，避免 Vite/postcss 无法解析 URL 中带 %20 的路径 */
+  src: url('/static/fonts/AlimamaFangYuanTi-VF.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Alibaba PuHuiTi 2';
+  src: url('/static/fonts/AlibabaPuHuiTi-2-55-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'id POP FTMARU';
+  src: url('/static/fonts/id-ftmaru400b-2.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ff-my {
+  font-family: 'Kingnammm Maiyuan 2', 'PingFang SC', -apple-system, sans-serif;
+}
+
+.ff-yuan {
+  font-family: 'Alimama FangYuanTi VF', 'PingFang SC', -apple-system, sans-serif;
+}
+
+.ff-pop {
+  font-family: 'id POP FTMARU', 'Alibaba PuHuiTi 2', 'PingFang SC', -apple-system, sans-serif;
+}

@@ -1,0 +1,125 @@
+{
+  "bsonType": "object",
+  "description": "匹配结果表——存储每次老人与护理员的四维度适配度计算结果",
+  "required": ["taker_id", "giver_id", "rule_version_id", "scores", "total_score", "match_grade"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "文档唯一ID，由 uniCloud 自动生成",
+      "bsonType": "string"
+    },
+    "taker_id": {
+      "description": "老人文档ID（关联 taker 集合的 _id）",
+      "label": "老人ID",
+      "bsonType": "string",
+      "foreignKey": "taker._id",
+      "errorMessage": {
+        "required": "老人ID为必填项"
+      }
+    },
+    "giver_id": {
+      "description": "护理员文档ID（关联 giver 集合的 _id）",
+      "label": "护理员ID",
+      "bsonType": "string",
+      "foreignKey": "giver._id",
+      "errorMessage": {
+        "required": "护理员ID为必填项"
+      }
+    },
+    "rule_version": {
+      "description": "使用的规则版本号字符串（冗余存储，便于展示，如 v2.0.0）",
+      "label": "规则版本号",
+      "bsonType": "string"
+    },
+    "rule_version_id": {
+      "description": "使用的规则版本文档ID（关联 matching_rule_versions 集合的 _id）",
+      "label": "规则版本ID",
+      "bsonType": "string",
+      "foreignKey": "matching_rule_versions._id",
+      "errorMessage": {
+        "required": "规则版本ID为必填项"
+      }
+    },
+    "scores": {
+      "description": "四维度单项得分明细（每项0~100，保留1位小数）",
+      "label": "维度得分",
+      "bsonType": "object",
+      "required": ["wuxing_score", "mbti_score", "env_score", "sixiang_score"],
+      "properties": {
+        "wuxing_score": {
+          "description": "五行适配度得分（权重40%）",
+          "label": "五行得分",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "mbti_score": {
+          "description": "MBTI行为沟通适配度得分（权重25%）",
+          "label": "MBTI得分",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "env_score": {
+          "description": "生活环境适配度得分（权重20%）",
+          "label": "环境得分",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "sixiang_score": {
+          "description": "四象情绪互动适配度得分（权重15%）",
+          "label": "四象得分",
+          "bsonType": "double",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "errorMessage": {
+        "required": "四维度得分为必填项"
+      }
+    },
+    "total_score": {
+      "description": "综合适配总分（= 五行×0.40 + MBTI×0.25 + 环境×0.20 + 四象×0.15，保留1位小数四舍五入，如86.4）",
+      "label": "综合总分",
+      "bsonType": "double",
+      "minimum": 0,
+      "maximum": 100,
+      "errorMessage": {
+        "required": "综合总分为必填项",
+        "minimum": "总分不得小于0",
+        "maximum": "总分不得超过100"
+      }
+    },
+    "match_grade": {
+      "description": "匹配等级：S（90分~）/ A（75分~）/ B（60分~）/ C（45分~）/ D（~44分）",
+      "label": "匹配等级",
+      "bsonType": "string",
+      "enum": ["S", "A", "B", "C", "D"],
+      "errorMessage": {
+        "required": "匹配等级为必填项",
+        "enum": "匹配等级必须为 S / A / B / C / D 之一"
+      }
+    },
+    "matched_date": {
+      "description": "匹配执行时间，Unix 毫秒时间戳",
+      "label": "匹配时间",
+      "bsonType": "timestamp"
+    },
+    "status": {
+      "description": "匹配状态：active=当前有效 / ended=已结束",
+      "label": "状态",
+      "bsonType": "string",
+      "enum": ["active", "ended"],
+      "defaultValue": "active",
+      "errorMessage": {
+        "enum": "状态只能为 active 或 ended"
+      }
+    }
+  }
+}
