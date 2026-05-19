@@ -4,7 +4,9 @@
       "Bash(python3 -c 'import json,sys; json.load\\(open\\('\\\\''/Users/kimgc/Desktop/SEC_Admin/uniCloud-aliyun/database/__TRACKED_VAR__.schema.json'\\\\''\\)\\); print\\('\\\\''  JSON valid ✓'\\\\''\\)')",
       "Bash(python3 -c 'import json; d=json.load\\(open\\('\\\\''/Users/kimgc/Desktop/SEC_Admin/uniCloud-aliyun/database/__TRACKED_VAR__.schema.json'\\\\''\\)\\); print\\('\\\\'', '\\\\''.join\\(d['\\\\''properties'\\\\''].keys\\(\\)\\)\\)')",
       "Bash(node --check __TRACKED_VAR__/upload-matching-rules/index.obj.js)",
-      "Bash(node --check __TRACKED_VAR__/match-engine/index.js)"
+      "Bash(node --check __TRACKED_VAR__/match-engine/index.js)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('pages.json'\\)\\); [print\\(f'  {p[\\\\\"path\\\\\"]}'\\) for p in d.get\\('pages',[]\\)]\")",
+      "Bash(grep -c '^\\\\$' styles/variables.scss)"
     ]
   }
 }
